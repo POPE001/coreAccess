@@ -19,6 +19,7 @@ const config: Config = {
         'custom-blue': '#4285F4'
 
       }
+      
     },
   },
   plugins: [],
