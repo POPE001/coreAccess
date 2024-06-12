@@ -1,20 +1,40 @@
-import Head from 'next/head'
-import Header from '../components/Header'
-import MainSection from '../components/Home'
-import Footer from '../components/Footer'
+"use client"
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import Header from '../components/Header';
+import MainSection from '../components/Home';
+import Footer from '../components/Footer';
+import SecurePassphrase from '../components/SecurePassphrase';
 
-export default function Home() {
+const Home: React.FC = () => {
+  const [showPassphrase, setShowPassphrase] = useState(false);
+
+  useEffect(() => {
+    document.body.style.backgroundColor = showPassphrase ? '#FFFFFF' : 'transparent';
+    document.body.style.backgroundImage = showPassphrase ? 'none' : ''; // Reset to default or specific styles
+  }, [showPassphrase]);
+
   return (
     <div>
       <Head>
         <title>CoreAccess</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
         <meta name="description" content="Revolutionizing Event Ticketing with Web3" />
         <link rel="icon" href="/favicon.ico" />
+        
       </Head>
 
-      <Header />
-      <MainSection />
-      <Footer />
+      {/* <Header onDemoClick={() => setShowPassphrase(prevState => !prevState)} /> */}
+      {showPassphrase ? (
+        <SecurePassphrase />
+      ) : (
+        <>
+          <MainSection />
+        </>
+      )}
+      {/* <Footer /> */}
     </div>
-  )
-}
+  );
+};
+
+export default Home;

@@ -1,6 +1,8 @@
 "use client"
 import { useState } from 'react';
 import EventsView from '../components/EventsView'; 
+import Link from 'next/link';
+
 const Home = () => {
 
     const [isConnected, setIsConnected] = useState(false);
@@ -27,9 +29,13 @@ const Home = () => {
                 <p className="text-lg sm:text-xl mb-6 md:mb-8 max-w-md sm:max-w-lg">
                     Discover a seamless and engaging ticketing experience for both event organizers and attendees
                 </p>
-                <button onClick={handleConnectWallet} className="bg-core-pink text-white font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-full transition duration-300 ease-in-out hover:bg-pink-700">
+                <Link href="/create-wallet">
+               
+                <button  className="bg-core-pink text-white font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-full transition duration-300 ease-in-out hover:bg-pink-700">
                     Connect Wallet
                 </button>
+
+                </Link>
             </>
         ) : (
             <EventsView />
