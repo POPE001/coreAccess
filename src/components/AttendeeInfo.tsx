@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface AttendeeInfoProps {
   onContinue: () => void;
@@ -10,6 +10,10 @@ const AttendeeInfo: React.FC<AttendeeInfoProps> = ({ onContinue }) => {
   const [fullName, setFullName] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState(false);
   const [heardAboutEvent, setHeardAboutEvent] = useState(false);
+  useEffect(() => {
+    document.body.style.backgroundColor = '#FFFFFF'; // Set background color to white
+    document.body.style.backgroundImage = 'none'; // Reset background image if any
+  }, []);
 
   return (
     <div className="bg-white p-6 md:p-8 lg:p-10 rounded-lg shadow-lg max-w-full md:max-w-3xl lg:max-w-4xl mx-auto my-12 border-2 border-black">

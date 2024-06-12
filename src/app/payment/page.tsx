@@ -1,14 +1,18 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-interface PaymentOptionsProps {
-  onContinue: () => void;
-}
+// interface PaymentOptionsProps {
+//   onContinue: () => void;
+// }
 
-const PaymentOptions: React.FC<PaymentOptionsProps> = ({ onContinue }) => {
+const PaymentOptions = () => {
   const [nearPayment, setNearPayment] = useState(false);
   const [paypalPayment, setPaypalPayment] = useState(false);
+  useEffect(() => {
+    document.body.style.backgroundColor = '#FFFFFF'; // Set background color to white
+    document.body.style.backgroundImage = 'none'; // Reset background image if any
+  }, []);
 
   return (
     <div className="bg-white p-8 md:p-16 lg:p-30 rounded-lg shadow-lg max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto my-12 border-2 border-black">
@@ -64,7 +68,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({ onContinue }) => {
       </div>
       <div className="flex justify-center mt-6">
         <Link href="payment">
-          <button onClick={onContinue} className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-10 rounded-full transition ease-in duration-300">
+          <button className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-10 rounded-full transition ease-in duration-300">
             Continue
           </button>
         </Link>
