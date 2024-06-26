@@ -79,18 +79,19 @@ export const createEvent = async (formData: FormData): Promise<EventResponse | E
 //   }
 // };
 
-export const getEvents = async (): Promise<EventResponse | ErrorResponse> => {
+export const getEvents = async (): Promise<EventData[]> => {
   try {
-    const response = await axios.get<EventResponse>(`${API_BASE_URL}/events`);
-    return response.data; // Directly returning the data part of the response
-  } catch (error: any) {
-    console.error('Error fetching events:', error);
-    return {
-      message: error.response?.data.message || 'Failed to fetch events. Please check network and data integrity.'
-    };
+    const response = await axios.get<EventData[]>(`${API_BASE_URL}/events`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Failed to fetch events:', error.response?.data?.message || 'Unknown error');
+    } else {
+      console.error('Failed to fetch events:', (error as Error).message);
+    }
+    return [];
   }
 };
-
 // Function to get event details by ID
 export const getEventById = async (id: string): Promise<EventData | ErrorResponse> => {
   try {
