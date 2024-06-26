@@ -14,8 +14,8 @@ interface TicketDetailProps {
   attendeeInfo: {
     fullName: boolean;
     phoneNumber: boolean;
-    email: boolean;
-    hearAboutEvent: boolean;
+    emailAddress: boolean;
+    heardAboutEvent: boolean;
   };
   event: {
     eventDate: string;
@@ -68,8 +68,8 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
       eventImage: event.eventImage,
       fullName: String(attendeeInfo.fullName),
       phoneNumber: String(attendeeInfo.phoneNumber),
-      emailAddress: String(attendeeInfo.email),
-      heardAboutEvent: String(attendeeInfo.hearAboutEvent),
+      emailAddress: String(attendeeInfo.emailAddress),
+      heardAboutEvent: String(attendeeInfo.heardAboutEvent),
     }).toString();
 
     router.push(`/ticket-form?${queryParams}`);
