@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -31,6 +31,7 @@ const TicketFormPage: React.FC = () => {
     email: searchParams?.get('email') === 'true',
     hearAboutEvent: searchParams?.get('hearAboutEvent') === 'true',
   };
+
   // Function to capitalize the first letter of a string
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -78,89 +79,91 @@ const TicketFormPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 pb-16">
-      <div className="flex ml-1 mr-1">
-        {eventImage && <img src={`https://coreaccess-backend.onrender.com/${eventImage}`} alt="Event Image" className="w-full h-60 rounded-3xl object-cover mb-4" />}
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="container mx-auto p-4 pb-16">
+        <div className="flex ml-1 mr-1">
+          {eventImage && <img src={`https://coreaccess-backend.onrender.com/${eventImage}`} alt="Event Image" className="w-full h-60 rounded-3xl object-cover mb-4" />}
+        </div>
+        <header className="text-left space-y-4">
+          <div className="flex justify-between items-center mt-4">
+            <h1 className="text-3xl font-bold text-black">{capitalizeFirstLetter(ticketName)}</h1>
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center space-x-2">
+                <FontAwesomeIcon icon={faCalendarAlt} className="text-pink-500 w-6 h-6" />
+                <span className="text-sm text-gray-600">{eventDate}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/assets/place.svg" alt="Place Icon" className="w-6 h-6" />
+                <span className="text-sm text-gray-600">{eventAddress}</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-xl text-black">for {capitalizeFirstLetter(eventName)}</p>
+          <div className="col space-x-2">
+            <h4 className="font-bold text-gray-800 mb-2">Hosted By</h4>
+            <div className="flex items-center border border-pink-500 text-pink-500 py-1 px-4 rounded-full text-sm shadow w-60">
+              <span className="h-2 w-2 bg-pink-500 rounded mr-2"></span>
+              <span>{capitalizeFirstLetter(eventName)}</span>
+            </div>
+          </div>
+        </header>
+        <h2 className="text-xl text-black font-bold mt-12 mb-12">Organiser Question</h2>
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4 mb-16 max-h-screen overflow-y-auto">
+          {attendeeInfo.fullName && (
+            <div>
+              <label className="block text-gray-700">Full Name</label>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          )}
+          {attendeeInfo.phoneNumber && (
+            <div>
+              <label className="block text-gray-700">Phone Number</label>
+              <input
+                type="text"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          )}
+          {attendeeInfo.email && (
+            <div>
+              <label className="block text-gray-700">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.emailAddress}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          )}
+          {attendeeInfo.hearAboutEvent && (
+            <div>
+              <label className="block text-gray-700">How did you hear about this event?</label>
+              <input
+                type="text"
+                name="hearAboutEvent"
+                value={formData.heardAboutEvent}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          )}
+          <button type="submit" className="w-full h-10 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out mt-8">
+            Get Ticket
+          </button>
+          {showModal && <PaymentModal />}
+        </form>
       </div>
-      <header className="text-left space-y-4">
-        <div className="flex justify-between items-center mt-4">
-          <h1 className="text-3xl font-bold text-black">{capitalizeFirstLetter(ticketName)}</h1>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-2">
-              <FontAwesomeIcon icon={faCalendarAlt} className="text-pink-500 w-6 h-6" />
-              <span className="text-sm text-gray-600">{eventDate}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <img src="/assets/place.svg" alt="Place Icon" className="w-6 h-6" />
-              <span className="text-sm text-gray-600">{eventAddress}</span>
-            </div>
-          </div>
-        </div>
-        <p className="text-xl text-black">for {capitalizeFirstLetter(eventName)}</p>
-        <div className="col space-x-2">
-          <h4 className="font-bold text-gray-800 mb-2">Hosted By</h4>
-          <div className="flex items-center border border-pink-500 text-pink-500 py-1 px-4 rounded-full text-sm shadow w-60">
-            <span className="h-2 w-2 bg-pink-500 rounded mr-2"></span>
-            <span>{capitalizeFirstLetter(eventName)}</span>
-          </div>
-        </div>
-      </header>
-      <h2 className="text-xl text-black font-bold mt-12 mb-12">Organiser Question</h2>
-      <form onSubmit={handleSubmit} className="space-y-4 mt-4 mb-16 max-h-screen overflow-y-auto">
-        {attendeeInfo.fullName && (
-          <div>
-            <label className="block text-gray-700">Full Name</label>
-            <input
-              type="text"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        )}
-        {attendeeInfo.phoneNumber && (
-          <div>
-            <label className="block text-gray-700">Phone Number</label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        )}
-        {attendeeInfo.email && (
-          <div>
-            <label className="block text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.emailAddress}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        )}
-        {attendeeInfo.hearAboutEvent && (
-          <div>
-            <label className="block text-gray-700">How did you hear about this event?</label>
-            <input
-              type="text"
-              name="hearAboutEvent"
-              value={formData.heardAboutEvent}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        )}
-<button type="submit" className="w-full h-10 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out mt-8">
-          Get Ticket
-        </button>
-        {showModal && <PaymentModal />}
-      </form>
-    </div>
+    </Suspense>
   );
 };
 
