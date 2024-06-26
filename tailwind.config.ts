@@ -16,12 +16,15 @@ const config: Config = {
       colors: {
         'core-pink': '#ED1F8E',  
         'dark-blue': '#123456', 
-        'custom-blue': '#4285F4'
+        'custom-blue': '#4285F4',
+        'button-black': '#1E293B'
 
       }
       
     },
   },
-  plugins: [],
+  plugins: [    
+    require('@tailwindcss/line-clamp'),
+],
 };
 export default config;

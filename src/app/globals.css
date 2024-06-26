@@ -18,14 +18,13 @@
 
 body {
   color: rgb(var(--foreground-rgb));
+  background-color: white;
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  ) rgb(var(--background-start-rgb));
 }
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -46,4 +45,46 @@ body {
 
 .btn_white:hover {
   @apply bg-pink-700;
+}
+
+.custom-modal-size {
+  max-width: 200px; /* Custom width as previously discussed */
+  min-height: 900px; /* New custom height */
+}
+
+.btn_black {
+  @apply text-black font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out border-2 border-core-pink;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #ED1F8E;
+}
+
+.toggle-label {
+  display: block;
+  width: 20px; /* Adjust size as needed */
+  height: 20px; /* Adjust size as needed */
+  border-radius: 50%;
+  background-color: gray; /* Default color */
+  transition: background-color 0.3s;
+}
+
+.toggle-checkbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.dot {
+  transition: transform 0.3s ease-in-out;
+}
+
+.event-image {
+  max-width: 430px;
+  max-height: 139px;
+  border-radius: 30px;
+  width: 100%; /* Ensure responsiveness */
+  height: auto; /* Ensure responsiveness */
+  object-fit: cover; /* Maintain aspect ratio and cover the area */
 }

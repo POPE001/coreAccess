@@ -1,10 +1,94 @@
-import React from 'react';
+"use client"
+import React, { useState, useRef } from 'react';
+import { AttendeeInfo, PaymentOptions, Ticket } from '../../types';
 
-interface CreateEventProps {
-  onContinue: () => void; // Define the type of the `onContinue` function
+interface EventDetails {
+  [key: string]: any;
+  address: string;
+  name: string;
+  description: string;
+  eventDate: string;
 }
 
-const CreateEvent: React.FC<CreateEventProps> = ({ onContinue }) => {
+interface EventData {
+  name: string;
+  description: string;
+  address: string;
+  eventDate: string;
+  eventDetails: EventDetails;
+  eventImage?: File | string;
+  tickets: Ticket[];
+  attendeeInfo: AttendeeInfo;
+  paymentOptions: PaymentOptions;
+}
+
+interface CreateEventProps {
+  eventData: EventData;
+  updateEventData: (newData: Partial<EventData>) => void;
+  onContinue: () => void;
+}
+
+const CreateEvent: React.FC<CreateEventProps> = ({ eventData, updateEventData, onContinue }) => {
+  const [eventDetails, setEventDetails] = useState<EventDetails>(eventData.eventDetails || {
+    name: '',
+    description: '',
+    address: '',
+    eventDate: '',
+  });
+
+  const [eventImage, setEventImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEventDetails(prev => ({ ...prev, [name]: value }));
+    updateEventData({ eventDetails: { ...eventDetails, [name]: value } });
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setEventImage(file);
+      updateEventData({ eventImage: file });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBrowseClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    fileInputRef.current?.click(); // Safely trigger the file input dialog
+  };
+
+  const validateFields = (): string[] => {
+    const errors: string[] = [];
+    Object.entries(eventDetails).forEach(([key, value]) => {
+      if ((typeof value === 'string' && value.trim() === '') || (typeof value === 'number' && value <= 0)) {
+        errors.push(key);
+      }
+    });
+    return errors;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const errors = validateFields();
+    if (errors.length === 0) {
+      updateEventData({
+        ...eventDetails,
+        eventDetails,
+        eventImage: eventImage || undefined,
+      });
+      onContinue();
+    } else {
+      alert(`Please fill in the following fields: ${errors.join(', ')}.`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-blue-50 flex items-center justify-center">
       <div className="w-full max-w-full md:max-w-3xl lg:max-w-5xl bg-white rounded-xl shadow-lg p-6 md:p-8 lg:p-10 mx-4 border-2 border-black">
@@ -31,7 +115,7 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onContinue }) => {
           </ol>
         </div>
 
-        <form className='mb-200'>
+        <form className='mb-200' onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="eventName">
               Event Name
@@ -39,6 +123,9 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onContinue }) => {
             <input
               id="eventName"
               type="text"
+              name='name'
+              value={eventDetails.name}
+              onChange={handleChange}
               placeholder="Type here"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
             />
@@ -50,76 +137,38 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onContinue }) => {
             <textarea
               id="eventDescription"
               placeholder="Type here"
+              name="description"
+              value={eventDetails.description}
+              onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-24 border-2 border-black"
             />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ticketSalesFrom">
-                Ticket Sales Available From
-              </label>
-              <input
-                id="ticketSalesFrom"
-                type="date"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ticketSalesTo">
-                Ticket Sales Available To
-              </label>
-              <input
-                id="ticketSalesTo"
-                type="date"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
-              />
-            </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="eventAddress">
+              Event Address
+            </label>
+            <input
+              id="eventAddress"
+              type="text"
+              name='address'
+              value={eventDetails.address}
+              onChange={handleChange}
+              placeholder="Type here"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="mb-4">
             <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ticketValidFrom">
-                Ticket Valid From
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="eventDate">
+                Event Date
               </label>
               <input
-                id="ticketValidFrom"
+                id="eventDate"
                 type="date"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ticketValidTo">
-                Ticket Valid To
-              </label>
-              <input
-                id="ticketValidTo"
-                type="date"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="numberOfTickets">
-                Number of Tickets
-              </label>
-              <input
-                id="numberOfTickets"
-                type="number"
-                placeholder="Type here"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="maxTicketsPerPerson">
-                Maximum Tickets per Person
-              </label>
-              <input
-                id="maxTicketsPerPerson"
-                type="number"
-                placeholder="Type here"
+                name='eventDate'
+                value={eventDetails.eventDate}
+                onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-2 border-black"
               />
             </div>
@@ -130,14 +179,28 @@ const CreateEvent: React.FC<CreateEventProps> = ({ onContinue }) => {
               Event Artwork
             </label>
             <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 flex flex-col items-center justify-center border-2 border-black">
-              <img src="/assets/drop-drop.svg" alt="Drag and drop icon" className="mb-4" />
+              <input
+                id="eventArtwork"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+              />
+              {previewUrl ? (
+                <img src={previewUrl} alt="Preview" className="mb-4 max-w-xs max-h-40" />
+              ) : (
+                <img src="/assets/drop-drop.svg" alt="Drag and drop icon" className="mb-4" />
+              )}
               <p className="text-gray-700 mb-2 text-center">Browse or drag and drop <br /> the image here</p>
-              <button className="bg-white border rounded-md px-4 py-2 text-gray-700 border-2 border-black">Browse</button>
+              <button onClick={handleBrowseClick} className="bg-white border rounded-md px-4 py-2 text-gray-700 border-2 border-black">
+                Browse
+              </button>
             </div>
           </div>
 
           <div className="flex justify-center mt-4 pb-10 mb-20">
-            <button onClick={onContinue} className="bg-pink-500 text-white font-bold py-2 px-8 md:px-10 rounded-full transition ease-in duration-300">
+            <button type="submit" className="bg-pink-500 text-white font-bold py-2 px-8 md:px-10 rounded-full transition ease-in duration-300">
               Continue
             </button>
           </div>

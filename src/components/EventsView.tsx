@@ -12,7 +12,12 @@ import PaymentOptions from './PaymentOptions';
 
 const EventsView = () => {
     const [currentStep, setCurrentStep] = useState(0); // 0 = initial view, 1 = create event, 2 = attendee info
+    const [eventData, setEventData] = useState({}); // Ensure initial state structure matches expectations
+    const updateEventData = (newData: {}) => {
+        setEventData(prev => ({ ...prev, ...newData }));
+    };
 
+    
     const handleCreateEvent = () => {
         setCurrentStep(1); // Move to create event step
     };
