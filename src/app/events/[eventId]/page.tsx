@@ -15,6 +15,7 @@ export default function EventDetailsPage() {
       fetchEventDetails(eventId);
     }
   }, [eventId]);
+//const API_BASE_URL = 'https://coreaccess-backend.onrender.com/api';
 
   useEffect(() => {
     if (event && event.eventImage) {
@@ -24,14 +25,14 @@ export default function EventDetailsPage() {
         setImageURL(url);
         return () => URL.revokeObjectURL(url);
       } else if (typeof eventImage === 'string') {
-        setImageURL(`http://localhost:8000/${eventImage}`);
+        setImageURL(`https://coreaccess-backend.onrender.com/${eventImage}`);
       }
     }
   }, [event]);
 
   const fetchEventDetails = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/events/${id}`);
+      const response = await fetch(`https://coreaccess-backend.onrender.com/api/events/${id}`);
       const result = await response.json();
       if (response.ok && result._id) {
         setEvent(result);

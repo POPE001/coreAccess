@@ -60,6 +60,8 @@
 //     </div>
 //   );
 // };
+
+
 import React, { useState, useEffect } from 'react';
 import { setupWalletSelector, WalletSelector } from '@near-wallet-selector/core';
 import { setupModal } from '@near-wallet-selector/modal-ui';

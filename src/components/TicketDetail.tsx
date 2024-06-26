@@ -39,7 +39,7 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
       };
       reader.readAsDataURL(ticket.ticketImage);
     } else if (typeof ticket.ticketImage === 'string') {
-      setImageSrc(`http://localhost:8000/${ticket.ticketImage}`);
+      setImageSrc(`https://coreaccess-backend.onrender.com/${ticket.ticketImage}`);
     } else {
       setImageSrc(undefined);
     }

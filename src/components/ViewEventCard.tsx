@@ -18,7 +18,7 @@ const EventCard: React.FC<{ event: EventData }> = ({ event }) => {
         setImageURL(url);
         return () => URL.revokeObjectURL(url);
       } else if (typeof eventImage === 'string') {
-        setImageURL(`http://localhost:8000/${eventImage}`);
+        setImageURL(`https://coreaccess-backend.onrender.com/${eventImage}`);
       }
     }
   }, [eventImage]);

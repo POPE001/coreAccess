@@ -48,7 +48,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
       validFrom: validFrom ? new Date(validFrom) : undefined,
       validTo: validTo ? new Date(validTo) : undefined,
       event: eventName,
-      ticketImage: fileInputRef.current?.files?.[0] || undefined  // Use undefined instead of null
+      ticketImage: fileInputRef.current?.files?.[0] || undefined // Use undefined instead of null
+      ,
+      _id: ''
     };
     onAddTicket(newTicket);
     onClose();

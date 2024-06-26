@@ -80,7 +80,7 @@ const TicketFormPage: React.FC = () => {
   return (
     <div className="container mx-auto p-4 pb-16">
       <div className="flex ml-1 mr-1">
-        {eventImage && <img src={`http://localhost:8000/${eventImage}`} alt="Event Image" className="w-full h-60 rounded-3xl object-cover mb-4" />}
+        {eventImage && <img src={`https://coreaccess-backend.onrender.com/${eventImage}`} alt="Event Image" className="w-full h-60 rounded-3xl object-cover mb-4" />}
       </div>
       <header className="text-left space-y-4">
         <div className="flex justify-between items-center mt-4">
