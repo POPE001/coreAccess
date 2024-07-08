@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import { API_BASE_URL } from '@/config';
 
 const TicketFormContent: React.FC = () => {
   const router = useRouter();
@@ -75,7 +76,7 @@ const TicketFormContent: React.FC = () => {
   return (
     <div className="container mx-auto p-4 pb-16">
       <div className="flex ml-1 mr-1">
-        {eventImage && <img src={`https://coreaccess-backend.onrender.com/${eventImage}`} alt="Event Image" className="w-full h-60 rounded-3xl object-cover mb-4" />}
+        {eventImage && <img src={`${API_BASE_URL}/${eventImage}`} alt="Event Image" className="w-full h-60 rounded-3xl object-cover mb-4" />}
       </div>
       <header className="text-left space-y-4">
         <div className="flex justify-between items-center mt-4">

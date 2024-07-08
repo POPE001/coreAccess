@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EventData } from '../../types';
-
+import { BASE_URL } from '@/config';
 const EventCard: React.FC<{ event: EventData }> = ({ event }) => {
   const { name, description, eventDate, tickets, eventImage } = event;
   const availableTickets = tickets.reduce((total, ticket) => total + ticket.quantity, 0);
@@ -18,7 +18,7 @@ const EventCard: React.FC<{ event: EventData }> = ({ event }) => {
         setImageURL(url);
         return () => URL.revokeObjectURL(url);
       } else if (typeof eventImage === 'string') {
-        setImageURL(`https://coreaccess-backend.onrender.com/${eventImage}`);
+        setImageURL(`${BASE_URL}/${eventImage}`);
       }
     }
   }, [eventImage]);

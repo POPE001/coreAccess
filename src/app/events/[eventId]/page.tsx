@@ -3,6 +3,7 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import TicketDetail from '../../../components/TicketDetail'; // Adjust the import path if necessary
 import { EventData, Ticket } from '../../../../types';
+import { API_BASE_URL, BASE_URL } from '@/config';
 
 export default function EventDetailsPage() {
   const { eventId } = useParams() as { eventId: string };
@@ -25,14 +26,14 @@ export default function EventDetailsPage() {
         setImageURL(url);
         return () => URL.revokeObjectURL(url);
       } else if (typeof eventImage === 'string') {
-        setImageURL(`https://coreaccess-backend.onrender.com/${eventImage}`);
+        setImageURL(`${BASE_URL}/${eventImage}`);
       }
     }
   }, [event]);
 
   const fetchEventDetails = async (id: string) => {
     try {
-      const response = await fetch(`https://coreaccess-backend.onrender.com/api/events/${id}`);
+      const response = await fetch(`${API_BASE_URL}/events/${id}`);
       const result = await response.json();
       if (response.ok && result._id) {
         setEvent(result);

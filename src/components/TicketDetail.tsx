@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
+import { BASE_URL } from '@/config';
 interface TicketDetailProps {
   ticket: {
     _id: string;
@@ -39,7 +39,7 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
       };
       reader.readAsDataURL(ticket.ticketImage);
     } else if (typeof ticket.ticketImage === 'string') {
-      setImageSrc(`https://coreaccess-backend.onrender.com/${ticket.ticketImage}`);
+      setImageSrc(`${BASE_URL}/${ticket.ticketImage}`);
     } else {
       setImageSrc(undefined);
     }

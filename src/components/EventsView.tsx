@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import EventCard from '../components/ViewEventCard';
@@ -13,12 +14,14 @@ import PaymentOptions from '../components/PaymentOptions';
 import { getEvents } from '../../services/eventService'; // Adjust the import path as needed
 import { EventData, EventDetails } from '../../types/index'; // Adjust the import path as needed
 import { useRouter } from 'next/navigation';
-
+import { API_BASE_URL } from '@/config';
 // const API_BASE_URL = 'http://localhost:8000/api'; // Ensure this is correctly set
-const API_BASE_URL = 'https://coreaccess-backend.onrender.com/api';
+// const API_BASE_URL = 'https://coreaccess-backend.onrender.com/api';
 
 const EventsView = () => {
     const [currentStep, setCurrentStep] = useState(0); // 0 = initial view, 1 = create event, 2 = attendee info
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track if user is logged in
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false); // State to control login prompt modal visibility
     const [events, setEvents] = useState<EventData[]>([]); // State to store the events fetched from API
     const router = useRouter();
 
@@ -81,12 +84,20 @@ const EventsView = () => {
                 console.error('Failed to fetch events:', error);
             }
         };
+        // Check if the user is logged in
+        const token = localStorage.getItem('token');
+        setIsLoggedIn(!!token); // Set login state based on token presence
 
         fetchEvents();
+        
     }, []);
 
     const handleCreateEvent = () => {
-        setCurrentStep(1); // Move to create event step
+        if (isLoggedIn) {
+            setCurrentStep(1); // Move to create event step
+        } else {
+            setShowLoginPrompt(true); // Show login prompt modal
+        }
     };
 
     const handleAttendeeInfo = () => {
@@ -161,7 +172,8 @@ const EventsView = () => {
         try {
             const response = await axios.post(`${API_BASE_URL}/events`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the headers
                 }
             });
             console.log('Event created successfully:', response.data);
@@ -221,6 +233,29 @@ const EventsView = () => {
             {currentStep === 4 && <div className="flex justify-center items-center min-h-screen">
                 <PaymentOptions eventData={eventData} updateEventData={updateEventData} onContinue={handleFinalSubmit} />
             </div>}
+            {showLoginPrompt && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-8 rounded-md shadow-lg">
+                        <h2 className="text-xl font-bold mb-4 text-black">Login Required</h2>
+                        <p className="mb-4 text-black">You need to be logged in to create an event.</p>
+                        <button
+                            className="btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
+                            onClick={() => {
+                                setShowLoginPrompt(false);
+                                router.push('/login');
+                            }}
+                        >
+                            Login
+                        </button>
+                        <button
+                            className="btn bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-300 ml-4"
+                            onClick={() => setShowLoginPrompt(false)}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

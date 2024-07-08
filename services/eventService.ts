@@ -50,10 +50,18 @@ interface EventResponse {
 
 // Utilize the EventData interface for creating events
 export const createEvent = async (formData: FormData): Promise<EventResponse | ErrorResponse> => {
+  const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+  if (!token) {
+    console.error('No token, authorization denied');
+    return { message: 'No token, authorization denied' };
+  }
+
   try {
     const response = await axios.post<EventResponse>(`${API_BASE_URL}/events`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+
       }
     });
     return response.data;

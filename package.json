@@ -35,8 +35,10 @@
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
+    "react-icons": "^5.2.1",
     "react-router-dom": "^6.24.0",
-    "recharts": "^2.12.7"
+    "recharts": "^2.12.7",
+    "teenyicons": "^0.4.1"
   },
   "devDependencies": {
     "@types/next": "^9.0.0",

@@ -13,9 +13,10 @@ import PaymentOptions from '../../components/PaymentOptions';
 import { getEvents } from '../../../services/eventService'; // Adjust the import path as needed
 import { EventData, EventDetails } from '../../../types/index'; // Adjust the import path as needed
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '@/config';
 
 // const API_BASE_URL = 'http://localhost:8000/api'; // Ensure this is correctly set
-const API_BASE_URL = 'https://coreaccess-backend.onrender.com/api';
+// const API_BASE_URL = 'https://coreaccess-backend.onrender.com/api';
 
 const EventsView = () => {
     const [currentStep, setCurrentStep] = useState(0); // 0 = initial view, 1 = create event, 2 = attendee info
