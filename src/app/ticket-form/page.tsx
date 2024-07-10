@@ -4,11 +4,18 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+import axios from 'axios';
 import { API_BASE_URL } from '@/config';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 const TicketFormContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const stripe = useStripe();
+  const elements = useElements();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -16,6 +23,9 @@ const TicketFormContent: React.FC = () => {
     emailAddress: '',
     heardAboutEvent: '',
   });
+
+  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [showModal, setShowModal] = useState(false);
 
   const attendeeInfo = {
     fullName: searchParams?.get('fullName') === 'true',
@@ -33,6 +43,8 @@ const TicketFormContent: React.FC = () => {
   const eventName = searchParams?.get('eventName') || '';
   const eventAddress = searchParams?.get('eventAddress') || '';
   const eventImage = searchParams?.get('eventImage') || '';
+  const ticketId = searchParams?.get('ticketId') || '';
+  const eventId = searchParams?.get('eventId') || '';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,35 +54,65 @@ const TicketFormContent: React.FC = () => {
     }));
   };
 
-  const PaymentModal = ({ showModal, toggleModal }: { showModal: boolean, toggleModal: () => void }) => {
-    return (
-      <div className={`fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full ${showModal ? 'block' : 'hidden'}`}>
-        <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-          <div className="mt-3 text-center">
-            <h3 className="text-lg leading-6 font-large text-black font-bold">Payment Method</h3>
-            <div className="mt-2 px-7 py-8">
-              <p className="text-sm text-gray-500">Create Tickets for your Event</p>
-              <button className="mt-8 w-full bg-pink-500 text-white rounded-full py-2 font-bold">Pay with NEAR</button>
-              <button className="mt-8 w-full bg-white-500 text-core-pink rounded-full py-2 font-bold flex justify-center items-center border-2 border-core-pink">
-                <img src="/assets/paypal-icon.svg" alt="PayPal" className="h-6 w-6 mr-2" /> Pay with PayPal
-              </button>
-              <button onClick={toggleModal} className="mt-8 w-full bg-pink-500 text-white rounded-full py-2 font-bold">Continue</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const [showModal, setShowModal] = useState(false);
   const toggleModal = () => {
     setShowModal(!showModal);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData); // Submit formData to the server
     toggleModal(); // Show payment modal on form submission
+  };
+
+  const handleStripePayment = async () => {
+    if (!stripe || !elements) return;
+
+    try {
+      const { data: { clientSecret } } = await axios.post(`${API_BASE_URL}/payments/stripe`, {
+        ticketId,
+        eventId,
+      });
+
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement)!,
+        },
+      });
+
+      if (result.error) {
+        console.error(result.error.message);
+      } else if (result.paymentIntent.status === 'succeeded') {
+        console.log('Payment succeeded!');
+        toggleModal();
+        router.push('/confirmation-page');
+      }
+    } catch (error) {
+      console.error('Payment failed', error);
+    }
+  };
+
+  const handleNearPayment = async () => {
+    try {
+      const accountId = 'dehonicore.tesnet' // replace with the user's NEAR account ID
+      const { data } = await axios.post(`${API_BASE_URL}/payments/near`, {
+        ticketId,
+        eventId,
+        accountId,
+      });
+
+      console.log('Near Payment succeeded!', data);
+      toggleModal();
+      router.push('/confirmation-page');
+    } catch (error) {
+      console.error('Payment failed', error);
+    }
+  };
+
+  const handlePayment = () => {
+    if (paymentMethod === 'stripe') {
+      handleStripePayment();
+    } else if (paymentMethod === 'near') {
+      handleNearPayment();
+    }
   };
 
   return (
@@ -154,7 +196,23 @@ const TicketFormContent: React.FC = () => {
         <button type="submit" className="w-full h-10 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out mt-8">
           Get Ticket
         </button>
-        {showModal && <PaymentModal showModal={showModal} toggleModal={toggleModal} />}
+        {showModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full block">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+              <div className="mt-3 text-center">
+                <h3 className="text-lg leading-6 font-large text-black font-bold">Payment Method</h3>
+                <div className="mt-2 px-7 py-8">
+                  <p className="text-sm text-gray-500">Choose your payment method</p>
+                  <button onClick={() => setPaymentMethod('near')} className="mt-8 w-full bg-pink-500 text-white rounded-full py-2 font-bold">Pay with NEAR</button>
+                  <button onClick={() => setPaymentMethod('stripe')} className="mt-8 w-full bg-white-500 text-core-pink rounded-full py-2 font-bold flex justify-center items-center border-2 border-core-pink">
+                    <img src="/assets/paypal-icon.svg" alt="Stripe" className="h-6 w-6 mr-2" /> Pay with Stripe
+                  </button>
+                  <button onClick={handlePayment} className="mt-8 w-full bg-pink-500 text-white rounded-full py-2 font-bold">Continue</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );
@@ -163,7 +221,9 @@ const TicketFormContent: React.FC = () => {
 const TicketFormPage: React.FC = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <TicketFormContent />
+      <Elements stripe={stripePromise}>
+        <TicketFormContent />
+      </Elements>
     </Suspense>
   );
 };

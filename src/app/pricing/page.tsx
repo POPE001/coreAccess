@@ -1,21 +1,60 @@
-"use client"
-
 import React, { useState, useEffect } from 'react';
-import Image  from 'next/image';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import tickCircle from '../../../public/assets/tick-circle.svg';
+import { useWallet } from '../../context/WalletContext';
+import { subscribe } from '../../../services/subscriptionService';
+// import { useAuth } from '../../context/authContext'; // Assuming you have an AuthContext to provide user information
+
+enum SubscriptionTier {
+  Basic = 'Basic',
+  Pro = 'Pro',
+  Premium = 'Premium'
+}
+type Duration = 'monthly' | 'yearly';
 
 const SubscriptionTiers: React.FC = () => {
-  const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null);
   const [selectedRole, setSelectedRole] = useState<string>('Host');
+  const [selectedDuration, setSelectedDuration] = useState<Duration>('monthly');
+  const router = useRouter();
+  const { walletConnected, connectWallet } = useWallet();
+  // const { user } = useAuth(); // Assuming you have an AuthContext to provide user information
 
   useEffect(() => {
     document.body.style.backgroundColor = '#FFFFFF';
     document.body.style.backgroundImage = 'none';
   }, []);
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     if (selectedTier) {
-      console.log(`Subscribed to ${selectedTier} as ${selectedRole}`);
+      if (!walletConnected) {
+        await connectWallet();
+      }
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      // if (!user || !user.id) {
+      //   console.error('No user found');
+      //   return;
+      // }
+
+      // const data = {
+      //   userId: user.id, // Use the actual user ID
+      //   tier: selectedTier,
+      //   duration: selectedDuration  // Ensured to be either 'monthly' or 'yearly'
+      // };
+
+      try {
+        // await subscribe(data, token);
+        console.log(`Subscribed to ${selectedTier} as ${selectedRole}`);
+        router.push('/');
+      } catch (error) {
+        console.error('Subscription failed', (error as Error).message);
+      }
     } else {
       console.log('Please select a tier to subscribe.');
     }
@@ -40,22 +79,22 @@ const SubscriptionTiers: React.FC = () => {
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full mb-6">
-        {['Basic', 'Pro', 'Premium'].map((tier) => (
+        {Object.values(SubscriptionTier).map((tier) => (
           <div
             key={tier}
-            onClick={() => setSelectedTier(tier)}
+            onClick={() => setSelectedTier(tier as SubscriptionTier)}
             className={`p-8 rounded-lg shadow-lg cursor-pointer text-center ${selectedTier === tier ? 'border-4 border-core-pink bg-pink-200' : 'border border-gray-300 bg-white'}`}
           >
             <h3 className="text-xl font-bold mb-4">{tier}</h3>
             <p className="text-core-pink text-lg mb-4">
-              {tier === 'Basic' && '$0 (0 NEAR)/monthly'}
-              {tier === 'Pro' && '$15 (3 NEAR)/monthly billed at $150 (30 NEAR)/year'}
-              {tier === 'Premium' && '$35 (7 NEAR)/monthly billed at $350 (70 NEAR)/year'}
+              {tier === SubscriptionTier.Basic && '$0 (0 NEAR)/monthly'}
+              {tier === SubscriptionTier.Pro && '$15 (3 NEAR)/monthly billed at $150 (30 NEAR)/year'}
+              {tier === SubscriptionTier.Premium && '$35 (7 NEAR)/monthly billed at $350 (70 NEAR)/year'}
             </p>
             <p className="text-gray-700 mb-4">
-              {tier === 'Basic' && 'Explore, discover, and purchase tickets to incredible events on Core Access. Our platform ensures a safe and seamless experience, putting the power of choice in your hands.'}
-              {tier === 'Pro' && 'Elevate your event experience with Core Access Pro. Get early access to in-demand tickets, enjoy reduced fees on most purchases, and unlock exclusive content drops.'}
-              {tier === 'Premium' && 'Become an event insider with Core Access Premium. Score front-row seats with priority access, save big with eliminated fees, snag limited-edition NFTs, and join a vibrant fan community.'}
+              {tier === SubscriptionTier.Basic && 'Explore, discover, and purchase tickets to incredible events on Core Access. Our platform ensures a safe and seamless experience, putting the power of choice in your hands.'}
+              {tier === SubscriptionTier.Pro && 'Elevate your event experience with Core Access Pro. Get early access to in-demand tickets, enjoy reduced fees on most purchases, and unlock exclusive content drops.'}
+              {tier === SubscriptionTier.Premium && 'Become an event insider with Core Access Premium. Score front-row seats with priority access, save big with eliminated fees, snag limited-edition NFTs, and join a vibrant fan community.'}
             </p>
             <div className="flex items-center space-x-2 mb-2">
               {selectedTier === tier && (
@@ -64,49 +103,19 @@ const SubscriptionTiers: React.FC = () => {
               <label className="font-bold text-core-pink">Fee Structure</label>
             </div>
             <p className="text-gray-700">
-              {tier === 'Basic' && (
+              {tier === SubscriptionTier.Basic && (
                 <>
                   <Image alt='tick' src={tickCircle} className="h-5 w-5 text-core-pink inline-block mr-2" />
                   '$2 fixed fee + 5-10% based on ticket price tier.'
                 </>
-                
               )}
-              {tier === 'Basic' && (
+              {tier === SubscriptionTier.Pro && (
                 <>
                   <Image alt='tick' src={tickCircle} className="h-5 w-5 text-core-pink inline-block mr-2" />
-                  '$2 fixed fee + 5% fee for tickets between $50.01 - $150'
+                  '$1 fixed fee and a 3-5% percentage'
                 </>
-                
               )}
-              {tier === 'Basic' && (
-                <>
-                  <Image alt='tick' src={tickCircle} className="h-5 w-5 text-core-pink inline-block mr-2" />
-                  '$2 fixed fee + 2% fee for tickets over $150'
-                </>
-                
-              )}
-              
-              {tier === 'Pro' && 
-
-              (
-                <>
-                <Image alt='tick' src={tickCircle} className="h-5 w-5 text-core-pink inline-block mr-2" />
-                '$2 fixed fee + 2% fee for tickets over $150'
-              </>
-              
-              
-              )}
-               {tier === 'Pro' && 
-
-(
-  <>
-  <Image alt='tick' src={tickCircle} className="h-5 w-5 text-core-pink inline-block mr-2" />
-  '$2 fixed fee + 2% fee for tickets over $150'
-</>
-
-
-)}
-              {tier === 'Premium' && 'No fees on tickets <$800, heavily discounted for tickets >$800.'}
+              {tier === SubscriptionTier.Premium && 'No fees on tickets <$800, heavily discounted for tickets >$800.'}
             </p>
           </div>
         ))}

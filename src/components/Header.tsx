@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useWallet } from '../context/WalletContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 
 const Header: React.FC = () => {
     const { walletConnected, username, disconnectWallet, connectWallet } = useWallet();
     const { items } = useCart();
     const router = useRouter();
+    const pathname = usePathname() || '/';
 
     const [isClient, setIsClient] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -17,7 +18,20 @@ const Header: React.FC = () => {
     useEffect(() => {
         setIsClient(true);
         const token = localStorage.getItem('token');
-        setIsLoggedIn(!!token); // Set login state based on token presence
+        setIsLoggedIn(!!token);
+    }, []);
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            const token = localStorage.getItem('token');
+            setIsLoggedIn(!!token);
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const handleDisconnect = () => {
@@ -29,12 +43,12 @@ const Header: React.FC = () => {
         localStorage.removeItem('token');
         setIsLoggedIn(false);
         router.push('/');
+        setTimeout(() => router.replace(pathname), 0);  // Force re-render by navigating to the current route
     };
 
     return (
         <header className="bg-white py-4 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                {/* Left section for the logo */}
                 <div className="flex items-center">
                     <Link legacyBehavior href="/" passHref>
                         <a>
@@ -43,7 +57,6 @@ const Header: React.FC = () => {
                     </Link>
                 </div>
 
-                {/* Center section for the nav */}
                 <nav className="hidden md:flex flex-grow justify-center items-center space-x-4">
                     <Link legacyBehavior href="/events" passHref>
                         <a className="text-gray-700 hover:text-blue-500 transition duration-300">Events</a>
@@ -59,7 +72,6 @@ const Header: React.FC = () => {
                     </Link>
                 </nav>
 
-                {/* Right section for the wallet information/button and cart */}
                 <div className="hidden md:flex items-center space-x-4">
                     {isClient && (
                         <Link legacyBehavior href="/cart" passHref>
@@ -120,7 +132,6 @@ const Header: React.FC = () => {
                     )}
                 </div>
 
-                {/* Hamburger menu for small screens */}
                 <div className="md:hidden flex items-center">
                     <button
                         className="text-gray-700 hover:text-blue-500 focus:outline-none"
@@ -144,7 +155,6 @@ const Header: React.FC = () => {
                 </div>
             </div>
 
-            {/* Mobile menu */}
             <div id="mobile-menu" className="hidden md:hidden bg-white shadow-lg">
                 <nav className="px-4 py-4 space-y-4">
                     <Link legacyBehavior href="/events" passHref>
