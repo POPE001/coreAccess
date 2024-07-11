@@ -48,7 +48,7 @@ const Login: React.FC = () => {
       localStorage.setItem('token', response.token);
 
       // Navigate to the home page after successful sign in
-      router.push('/');
+      router.push('/events');
     } catch (error) {
       const message = getErrorMessage(error);
       setErrorMessage(message);

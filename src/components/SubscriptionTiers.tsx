@@ -105,7 +105,8 @@ const SubscriptionTiers: React.FC = () => {
 
     const token = localStorage.getItem('token');
     console.log('Token:', token); // Log the token for debugging
-    if (!token) {
+    console.log('User ID:', user.id); // Log the user ID
+       if (!token) {
       console.error('No token found');
       setLoading(false);
       return;
@@ -117,6 +118,7 @@ const SubscriptionTiers: React.FC = () => {
       duration: selectedDurations[selectedTier],
       paymentMethodId: paymentMethod.id,
     };
+    console.log('Subscription Data:', data); // Log the subscription data
 
     try {
       await subscribe(data, token);

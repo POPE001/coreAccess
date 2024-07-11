@@ -11,7 +11,7 @@ interface SubscribeData {
   userId: string;
   tier: SubscriptionTier;
   duration: 'monthly' | 'yearly';
-  paymentMethodId: string; // Include the payment method ID
+  paymentMethodId: string;
 }
 
 export const subscribe = async (data: SubscribeData, token: string) => {

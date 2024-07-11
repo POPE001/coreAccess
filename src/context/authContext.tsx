@@ -50,7 +50,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchSubscription = async (authToken: string) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/pricing/subscription`, {
+      const response = await axios.get(`${API_BASE_URL}/pri cing/subscription`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
