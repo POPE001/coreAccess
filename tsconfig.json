@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -10,7 +14,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "target": "es2017",  
+    "target": "es2017",
     "downlevelIteration": true,
     "jsx": "preserve",
     "incremental": true,
@@ -20,12 +24,26 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-        "@near-js/*": ["./node_modules/@near-js/*"],
-        "near-api-js/*": ["./node_modules/near-api-js/*"]
-  
+      "@/*": [
+        "./src/*"
+      ],
+      "@near-js/*": [
+        "./node_modules/@near-js/*"
+      ],
+      "near-api-js/*": [
+        "./node_modules/near-api-js/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "pages/api/hi", "src/app/api/create-trial-account"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "pages/api/hi",
+    "src/app/api/create-trial-account"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

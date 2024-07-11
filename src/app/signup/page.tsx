@@ -1,4 +1,3 @@
-// src/components/SignUp.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -6,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signUp } from '../../../services/authService';
 import { getErrorMessage } from '../../utils/errorHandler';
 import Link from 'next/link';
+import { PulseLoader } from 'react-spinners';
 
 const SignUp: React.FC = () => {
   const [fullname, setFullname] = useState('');
@@ -132,8 +132,9 @@ const SignUp: React.FC = () => {
             <button
               type="submit"
               className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-core-pink hover:bg-core-pink-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isLoading} // Disable the button while loading
             >
-              Sign Up
+              {isLoading ? <PulseLoader size={10} color={"#fff"} /> : 'Sign Up'}
             </button>
           </div>
         </form>

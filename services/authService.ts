@@ -1,4 +1,3 @@
-// src/services/authService.ts
 import axios from 'axios';
 import { API_BASE_URL } from '@/config';
 
@@ -7,7 +6,6 @@ interface SignUpData {
   email: string;
   password: string;
 }
-
 
 interface SignInData {
   email: string;
@@ -40,4 +38,3 @@ export const signIn = async (data: SignInData) => {
     }
   }
 };
-

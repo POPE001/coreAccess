@@ -1,5 +1,6 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from 'react';
+import { PulseLoader } from 'react-spinners';
 
 interface AttendeeInfoProps {
   eventData: EventData;
@@ -26,6 +27,8 @@ const AttendeeInfo: React.FC<AttendeeInfoProps> = ({ eventData, updateEventData,
     phoneNumber: eventData?.attendeeInfo?.phoneNumber || false,
     heardAboutEvent: eventData?.attendeeInfo?.heardAboutEvent || false,
   });
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.body.style.backgroundColor = '#FFFFFF';
@@ -59,6 +62,14 @@ const AttendeeInfo: React.FC<AttendeeInfoProps> = ({ eventData, updateEventData,
     );
   };
 
+  const handleContinue = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onContinue();
+    }, 2000); // simulate a 2-second delay for the loading spinner
+  };
+
   return (
     <div className="bg-white p-6 md:p-8 lg:p-10 rounded-lg shadow-lg max-w-full md:max-w-3xl lg:max-w-4xl mx-auto my-12 border-2 border-black">
       <h1 className="text-xl font-semibold mb-6 text-center text-black">Create an Event - Attendee Info</h1>
@@ -69,8 +80,11 @@ const AttendeeInfo: React.FC<AttendeeInfoProps> = ({ eventData, updateEventData,
         {renderToggleSwitch('How Did You Hear About Our Event?', 'heardAboutEvent')}
       </div>
       <div className="flex justify-center mt-8">
-        <button onClick={onContinue} className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-8 md:px-10 rounded-full transition ease-in duration-300">
-          Continue
+        <button
+          onClick={handleContinue}
+          className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-8 md:px-10 rounded-full transition ease-in duration-300 flex items-center"
+        >
+          {loading ? <PulseLoader size={10} color={"#fff"} /> : 'Continue'}
         </button>
       </div>
     </div>

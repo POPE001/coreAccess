@@ -92,7 +92,7 @@ const TicketFormContent: React.FC = () => {
 
   const handleNearPayment = async () => {
     try {
-      const accountId = 'dehonicore.tesnet' // replace with the user's NEAR account ID
+      const accountId = 'dehonicore.tesnet' 
       const { data } = await axios.post(`${API_BASE_URL}/payments/near`, {
         ticketId,
         eventId,

@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from '../../../services/authService';
 import { getErrorMessage } from '../../utils/errorHandler';
+import { PulseLoader } from 'react-spinners';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ email: false, password: false });
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -35,6 +37,8 @@ const Login: React.FC = () => {
       return;
     }
 
+    setLoading(true); // Start loading
+
     try {
       const data = { email, password };
       const response = await signIn(data);
@@ -49,6 +53,8 @@ const Login: React.FC = () => {
       const message = getErrorMessage(error);
       setErrorMessage(message);
       console.error('Sign in error:', message);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -99,8 +105,9 @@ const Login: React.FC = () => {
             <button
               type="submit"
               className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-core-pink hover:bg-core-pink-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={loading} // Disable the button while loading
             >
-              Sign In
+              {loading ? <PulseLoader size={10} color={"#fff"} /> : 'Sign In'}
             </button>
           </div>
         </form>

@@ -1,5 +1,7 @@
 "use client"
+
 import React, { useState, useRef } from 'react';
+import { PulseLoader } from 'react-spinners';
 import { Ticket } from '../../types';
 
 interface CreateTicketModalProps {
@@ -20,6 +22,8 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
   const [ticketPrice, setTicketPrice] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleBrowseClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -36,7 +40,27 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
     }
   };
 
+  const validateFields = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!ticketName) newErrors.ticketName = 'Ticket Name is required';
+    if (!ticketDescription) newErrors.ticketDescription = 'Ticket Description is required';
+    if (!salesStart) newErrors.salesStart = 'Sales Start Date is required';
+    if (!salesEnd) newErrors.salesEnd = 'Sales End Date is required';
+    if (!validFrom) newErrors.validFrom = 'Valid From Date is required';
+    if (!validTo) newErrors.validTo = 'Valid To Date is required';
+    if (!numTickets) newErrors.numTickets = 'Number of Tickets is required';
+    if (!ticketPrice) newErrors.ticketPrice = 'Ticket Price is required';
+    return newErrors;
+  };
+
   const handleAddTicket = () => {
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setLoading(true);
     const newTicket: Ticket = {
       name: ticketName,
       description: ticketDescription,
@@ -48,16 +72,19 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
       validFrom: validFrom ? new Date(validFrom) : undefined,
       validTo: validTo ? new Date(validTo) : undefined,
       event: eventName,
-      ticketImage: fileInputRef.current?.files?.[0] || undefined // Use undefined instead of null
-      ,
+      ticketImage: fileInputRef.current?.files?.[0] || undefined,
       _id: ''
     };
-    onAddTicket(newTicket);
-    onClose();
+
+    setTimeout(() => {
+      onAddTicket(newTicket);
+      onClose();
+      setLoading(false);
+    }, 2000); // simulate a 2-second delay for the loading spinner
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl mx-auto my-12 border-2 border-black">
+    <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg max-w-3xl mx-4 md:mx-auto my-6 border-2 border-black">
       <h1 className="text-xl font-semibold mb-6 text-center">Create a Ticket for {eventName}</h1>
       <form className="space-y-4">
         <div>
@@ -66,18 +93,20 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
             type="text"
             value={ticketName}
             onChange={e => setTicketName(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+            className={`block w-full px-3 py-2 border rounded-md text-black ${errors.ticketName ? 'border-red-500' : 'border-gray-300'}`}
             placeholder="Type here"
           />
+          {errors.ticketName && <p className="text-red-500 text-xs mt-1">{errors.ticketName}</p>}
         </div>
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2">Ticket Description</label>
           <textarea
             value={ticketDescription}
             onChange={e => setTicketDescription(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+            className={`block w-full px-3 py-2 border rounded-md text-black ${errors.ticketDescription ? 'border-red-500' : 'border-gray-300'}`}
             placeholder="Type here"
           />
+          {errors.ticketDescription && <p className="text-red-500 text-xs mt-1">{errors.ticketDescription}</p>}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -86,8 +115,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={salesStart}
               onChange={e => setSalesStart(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+              className={`block w-full px-3 py-2 border rounded-md text-black ${errors.salesStart ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {errors.salesStart && <p className="text-red-500 text-xs mt-1">{errors.salesStart}</p>}
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Ticket Sales Available To</label>
@@ -95,8 +125,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={salesEnd}
               onChange={e => setSalesEnd(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+              className={`block w-full px-3 py-2 border rounded-md text-black ${errors.salesEnd ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {errors.salesEnd && <p className="text-red-500 text-xs mt-1">{errors.salesEnd}</p>}
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -106,8 +137,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={validFrom}
               onChange={e => setValidFrom(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+              className={`block w-full px-3 py-2 border rounded-md text-black ${errors.validFrom ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {errors.validFrom && <p className="text-red-500 text-xs mt-1">{errors.validFrom}</p>}
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Ticket Valid To</label>
@@ -115,8 +147,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={validTo}
               onChange={e => setValidTo(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+              className={`block w-full px-3 py-2 border rounded-md text-black ${errors.validTo ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {errors.validTo && <p className="text-red-500 text-xs mt-1">{errors.validTo}</p>}
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -126,8 +159,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="number"
               value={numTickets}
               onChange={e => setNumTickets(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+              className={`block w-full px-3 py-2 border rounded-md text-black ${errors.numTickets ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {errors.numTickets && <p className="text-red-500 text-xs mt-1">{errors.numTickets}</p>}
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Maximum Tickets per Person</label>
@@ -135,8 +169,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="number"
               value={maxPerPerson}
               onChange={e => setMaxPerPerson(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+              className={`block w-full px-3 py-2 border rounded-md text-black ${errors.maxPerPerson ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {errors.maxPerPerson && <p className="text-red-500 text-xs mt-1">{errors.maxPerPerson}</p>}
           </div>
         </div>
         <div>
@@ -145,8 +180,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
             type="text"
             value={ticketPrice}
             onChange={e => setTicketPrice(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+            className={`block w-full px-3 py-2 border rounded-md text-black ${errors.ticketPrice ? 'border-red-500' : 'border-gray-300'}`}
           />
+          {errors.ticketPrice && <p className="text-red-500 text-xs mt-1">{errors.ticketPrice}</p>}
         </div>
         <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 mb-4 flex flex-col items-center justify-center">
           {imagePreviewUrl ? (
@@ -157,21 +193,22 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
           <button onClick={handleBrowseClick} type="button" className="bg-white border rounded-md px-4 py-2 text-gray-700 border-2 border-black">
             Browse
           </button>
-          <input 
-            type="file" 
-            accept="image/*" 
+          <input
+            type="file"
+            accept="image/*"
             onChange={handleImageChange}
-            ref={fileInputRef} 
-            style={{ display: 'none' }} 
+            ref={fileInputRef}
+            style={{ display: 'none' }}
           />
         </div>
         <div className="flex justify-center">
           <button
             type="button"
             onClick={handleAddTicket}
-            className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-10 rounded-full transition ease-in duration-300"
+            className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-10 rounded-full transition ease-in duration-300 flex items-center"
+            disabled={loading}
           >
-            Add Ticket
+            {loading ? <PulseLoader size={10} color={"#fff"} /> : 'Add Ticket'}
           </button>
         </div>
       </form>

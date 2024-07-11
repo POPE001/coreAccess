@@ -160,15 +160,19 @@ const EventsView = () => {
     
         // Make the API call
         try {
+            const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+            if (!token) {
+                throw new Error('No token, authorization denied');
+            }
             const response = await axios.post(`${API_BASE_URL}/events`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` // Include the token in the Authorization header
                 }
             });
             console.log('Event created successfully:', response.data);
             // Handle post-submit actions here, such as redirecting the user
             router.push('/view-event');
-
         } catch (error) {
             // Check if error is an Axios error
             if (axios.isAxiosError(error)) {
@@ -181,7 +185,6 @@ const EventsView = () => {
             // Handle errors, such as displaying error messages to the user
         }
     };
-    
 
     return (
         <div className="container mx-auto px-4 mb-6">
