@@ -139,12 +139,6 @@ const SubscriptionTiers: React.FC = () => {
         >
           Host
         </button>
-        {/* <button
-          onClick={() => setSelectedRole('Attendee')}
-          className={`px-4 py-2 rounded-full border-2 ${selectedRole === 'Attendee' ? 'border-pink-500 bg-pink-500 text-white' : 'border-gray-300 text-gray-700'}`}
-        >
-          Attendee
-        </button> */}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full mb-6">
         {Object.values(SubscriptionTier).map((tier) => (
@@ -223,7 +217,7 @@ const SubscriptionTiers: React.FC = () => {
       ) : (
         renderSubscriptionOptions()
       )}
-      {subscription && subscription.tier === SubscriptionTier.Basic && (
+      {selectedTier && (
         <div className="w-full max-w-md mt-4">
           <CardElement options={cardStyle} onChange={(event) => {
             if (event.error) {

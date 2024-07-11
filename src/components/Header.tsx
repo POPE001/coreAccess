@@ -16,6 +16,7 @@ const Header: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { subscription, fetchSubscription } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -52,6 +53,14 @@ const Header: React.FC = () => {
     setIsLoggedIn(false);
     router.push('/');
     setTimeout(() => router.replace(pathname), 0); // Force re-render by navigating to the current route
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -148,7 +157,7 @@ const Header: React.FC = () => {
         <div className="md:hidden flex items-center">
           <button
             className="text-gray-700 hover:text-blue-500 focus:outline-none"
-            onClick={() => document.getElementById('mobile-menu')?.classList.toggle('hidden')}
+            onClick={toggleMobileMenu}
           >
             <svg
               className="w-6 h-6"
@@ -168,25 +177,25 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      <div id="mobile-menu" className="hidden md:hidden bg-white shadow-lg">
+      <div id="mobile-menu" className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'} bg-white shadow-lg`}>
         <nav className="px-4 py-4 space-y-4">
           <Link legacyBehavior href="/events" passHref>
-            <a className="block text-gray-700 hover:text-blue-500">Events</a>
+            <a className="block text-gray-700 hover:text-blue-500" onClick={closeMobileMenu}>Events</a>
           </Link>
           <Link legacyBehavior href="/view-event" passHref>
-            <a className="block text-gray-700 hover:text-blue-500">View Events</a>
+            <a className="block text-gray-700 hover:text-blue-500" onClick={closeMobileMenu}>View Events</a>
           </Link>
           <Link legacyBehavior href="/docs" passHref>
-            <a className="block text-gray-700 hover:text-blue-500">Docs</a>
+            <a className="block text-gray-700 hover:text-blue-500" onClick={closeMobileMenu}>Docs</a>
           </Link>
           <Link legacyBehavior href="/pricing" passHref>
-            <a className="block text-gray-700 hover:text-blue-500">Pricing</a>
+            <a className="block text-gray-700 hover:text-blue-500" onClick={closeMobileMenu}>Pricing</a>
           </Link>
           {walletConnected ? (
             <div className="block text-gray-700">Welcome, {username}</div>
           ) : (
             <button
-              onClick={connectWallet}
+              onClick={() => {connectWallet(); closeMobileMenu();}}
               className="w-full btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
             >
               Connect Wallet
@@ -198,7 +207,7 @@ const Header: React.FC = () => {
                 <span className="text-gray-700">Subscribed: {subscription.tier}</span>
               )}
               <button
-                onClick={handleLogout}
+                onClick={() => {handleLogout(); closeMobileMenu();}}
                 className="w-full btn_white bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md"
               >
                 Logout
@@ -207,7 +216,7 @@ const Header: React.FC = () => {
           ) : (
             <Link legacyBehavior href="/login">
               <a className="w-full">
-                <button className="w-full btn_white bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md">
+                <button className="w-full btn_white bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md" onClick={closeMobileMenu}>
                   Login
                 </button>
               </a>
@@ -215,7 +224,7 @@ const Header: React.FC = () => {
           )}
 
           <Link legacyBehavior href="/cart" passHref>
-            <a className="relative text-gray-700 hover:text-blue-500 flex items-center">
+            <a className="relative text-gray-700 hover:text-blue-500 flex items-center" onClick={closeMobileMenu}>
               <svg
                 className="h-6 w-6"
                 fill="none"
