@@ -66,9 +66,9 @@ const EventsView = () => {
     }));
   };
 
-  const fetchEvents = async (query: string = '') => {
+  const fetchEvents = async () => {
     try {
-      const data = await getEvents(query);
+      const data = await getEvents();
       setEvents(data);
     } catch (error) {
       console.error('Failed to fetch events:', error);
@@ -181,14 +181,14 @@ const EventsView = () => {
     }
   };
 
-  const handleSearch = (query: string) => {
-    fetchEvents(query);
-  };
+  // const handleSearch = (query: string) => {
+  //   fetchEvents(query);
+  // };
 
   return (
     <div className="container mx-auto px-4 mb-6">
       {currentStep === 0 && <>
-        <SearchBox onSearch={handleSearch} />
+        {/* <SearchBox onSearch={handleSearch} /> */}
         <div className="flex flex-wrap justify-between">
           <div className="flex-1 min-w-0 lg:flex">
             <div className="w-full lg:w-3/4 space-y-4 pr-4">
