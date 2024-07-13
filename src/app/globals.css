@@ -89,3 +89,140 @@ body {
   height: auto; /* Ensure responsiveness */
   object-fit: cover; /* Maintain aspect ratio and cover the area */
 }
+
+/* Add this to your global CSS file or in a style tag within the component */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  animation: fadeIn 1s ease-out;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  transition: color 0.3s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: #3b82f6; /* blue-500 color */
+  transition: left 0.3s ease, width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  left: 0;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.ticket-detail {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.ticket-image {
+  transition: transform 0.3s ease;
+}
+
+.ticket-image:hover {
+  transform: scale(1.05);
+}
+
+.button {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: #e60073;
+  transform: translateY(-2px);
+}
+
+.increment-decrement-button {
+  transition: background-color 0.3s ease;
+}
+
+.increment-decrement-button:hover {
+  background-color: #d1d5db; /* gray-300 */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.modal {
+  animation: slideUp 0.5s ease-out;
+}
+
+.button {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: #e60073;
+  transform: translateY(-2px);
+  color: #d1d5db;
+}
+
+.input-field {
+  transition: border-color 0.3s ease;
+}
+
+.input-field:focus {
+  border-color: #e60073;
+  outline: none;
+}

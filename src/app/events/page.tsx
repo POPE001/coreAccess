@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import EventCard from '../../components/ViewEventCard';
 import SearchBox from '../../components/SearchBox';
-import TopOrganizers from '../../components/TopOrganizers';
-import TopEvents from '../../components/TopEvents';
+// import TopOrganizers from '../../components/TopOrganizers';
+// import TopEvents from '../../components/TopEvents';
 import CallToAction from '../../components/CallToAction';
 import CreateEvent from '../../components/CreateEvent';
 import AttendeeInfo from '../../components/AttendeeInfo';
@@ -189,7 +189,9 @@ const EventsView = () => {
     return (
         <div className="container mx-auto px-4 mb-6">
             {currentStep === 0 && <>
-                <SearchBox />
+                {/* <SearchBox onSearch={function (query: string): void {
+                    throw new Error('Function not implemented.');
+                } } /> */}
                 <div className="flex flex-wrap justify-between">
                     <div className="flex-1 min-w-0 lg:flex"> 
                         <div className="w-full lg:w-3/4 space-y-4 pr-4">
@@ -201,8 +203,8 @@ const EventsView = () => {
                             <CallToAction onButtonClick={handleCreateEvent} />
                         </div>
                         <div className="w-full lg:w-1/4 lg:pl-4 space-y-4">
-                            <TopOrganizers />
-                            <TopEvents />
+                            {/* <TopOrganizers />
+                            <TopEvents /> */}
                         </div>
                     </div>
                 </div>

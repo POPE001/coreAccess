@@ -31,6 +31,7 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
+    "framer-motion": "^11.3.2",
     "gsap": "^3.12.5",
     "jwt-decode": "^4.0.0",
     "near-api-js": "^2.1.4",
@@ -41,7 +42,9 @@
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.24.0",
     "react-spinners": "^0.14.1",
+    "react-transition-group": "^4.4.5",
     "recharts": "^2.12.7",
+    "sweetalert2": "^11.12.2",
     "teenyicons": "^0.4.1"
   },
   "devDependencies": {
@@ -49,6 +52,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-transition-group": "^4.4.10",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BASE_URL } from '@/config';
+
 interface TicketDetailProps {
   ticket: {
     _id: string;
@@ -18,6 +19,7 @@ interface TicketDetailProps {
     heardAboutEvent: boolean;
   };
   event: {
+    _id: string;
     eventDate: string;
     name: string;
     eventImage: string;
@@ -29,6 +31,7 @@ interface TicketDetailProps {
 const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event }) => {
   const [ticketCount, setTicketCount] = useState(0);
   const [imageSrc, setImageSrc] = useState<string | undefined>(undefined);
+  const [totalCount, setTotalCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,6 +47,10 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
       setImageSrc(undefined);
     }
   }, [ticket.ticketImage]);
+
+  useEffect(() => {
+    setTotalCount(ticketCount); // Update the total count whenever ticketCount changes
+  }, [ticketCount]);
 
   const increment = () => {
     if (ticketCount < (ticket.maxPerPerson || ticket.quantity)) {
@@ -66,21 +73,23 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
       eventDescription: event.description,
       eventAddress: event.address,
       eventImage: event.eventImage,
+      eventId: event._id, // Ensure eventId is included
       fullName: String(attendeeInfo.fullName),
       phoneNumber: String(attendeeInfo.phoneNumber),
       emailAddress: String(attendeeInfo.emailAddress),
       heardAboutEvent: String(attendeeInfo.heardAboutEvent),
+      ticketCount: String(ticketCount), // Pass ticket count
     }).toString();
 
     router.push(`/ticket-form?${queryParams}`);
   };
 
   return (
-    <div className="bg-white text-gray-900 p-6 rounded-lg w-full shadow-md flex flex-col items-center mt-4 mb-16 max-h-screen overflow-y-auto">
+    <div className="bg-white text-gray-900 p-6 rounded-lg w-full shadow-md flex flex-col items-center mt-4 mb-16 max-h-screen overflow-y-auto ticket-detail">
       {imageSrc ? (
-        <img src={imageSrc} alt={ticket.name} className="w-full h-40 object-cover rounded-lg mb-4" />
+        <img src={imageSrc} alt={ticket.name} className="w-full h-40 object-cover rounded-lg mb-4 ticket-image" />
       ) : (
-        <div className="w-full h-40 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
+        <div className="w-full h-40 bg-gray-200 rounded-lg mb-4 flex items-center justify-center ticket-image">
           <span className="text-gray-500">No Image Available</span>
         </div>
       )}
@@ -92,7 +101,7 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
         <button
           onClick={decrement}
           disabled={ticketCount <= 0}
-          className="bg-gray-200 text-gray-900 px-2 py-1 rounded"
+          className="bg-gray-200 text-gray-900 px-2 py-1 rounded increment-decrement-button"
         >
           -
         </button>
@@ -100,15 +109,19 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
         <button
           onClick={increment}
           disabled={ticketCount >= (ticket.maxPerPerson || ticket.quantity)}
-          className="bg-gray-200 text-gray-900 px-2 py-1 rounded"
+          className="bg-gray-200 text-gray-900 px-2 py-1 rounded increment-decrement-button"
         >
           +
         </button>
       </div>
       <p className="text-sm text-gray-500 mt-2">Limited to {ticket.maxPerPerson || ticket.quantity} per account</p>
+      <p className="text-lg text-gray-500 mt-2 font-bold">Total Price: ${totalCount * ticket.price}</p> {/* Display the total count */}
       <button
         onClick={handleGetTickets}
-        className="mt-4 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full"
+        disabled={ticketCount === 0}
+        className={`mt-4 text-white font-bold py-2 px-4 rounded-full button ${
+          ticketCount === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-pink-500 hover:bg-pink-700'
+        }`}
       >
         Get Tickets
       </button>

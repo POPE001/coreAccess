@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PulseLoader } from 'react-spinners';
 import { Ticket } from '../../types';
 
@@ -20,10 +20,38 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
   const [numTickets, setNumTickets] = useState('');
   const [maxPerPerson, setMaxPerPerson] = useState('');
   const [ticketPrice, setTicketPrice] = useState('');
+  const [usdPrice, setUsdPrice] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const fetchNearToUsdRate = async () => {
+    try {
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd');
+      const data = await response.json();
+      return data.near.usd;
+    } catch (error) {
+      console.error('Failed to fetch NEAR to USD rate:', error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const convertToUsd = async () => {
+      const rate = await fetchNearToUsdRate();
+      if (rate) {
+        const priceInUsd = (parseFloat(ticketPrice) * rate).toFixed(2);
+        setUsdPrice(priceInUsd);
+      }
+    };
+
+    if (ticketPrice) {
+      convertToUsd();
+    } else {
+      setUsdPrice('');
+    }
+  }, [ticketPrice]);
 
   const handleBrowseClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -83,6 +111,11 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
     }, 2000); // simulate a 2-second delay for the loading spinner
   };
 
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   return (
     <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg max-w-3xl mx-4 md:mx-auto my-6 border-2 border-black">
       <h1 className="text-xl font-semibold mb-6 text-center">Create a Ticket for {eventName}</h1>
@@ -115,6 +148,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={salesStart}
               onChange={e => setSalesStart(e.target.value)}
+              min={getCurrentDate()}
               className={`block w-full px-3 py-2 border rounded-md text-black ${errors.salesStart ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.salesStart && <p className="text-red-500 text-xs mt-1">{errors.salesStart}</p>}
@@ -125,6 +159,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={salesEnd}
               onChange={e => setSalesEnd(e.target.value)}
+              min={getCurrentDate()}
               className={`block w-full px-3 py-2 border rounded-md text-black ${errors.salesEnd ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.salesEnd && <p className="text-red-500 text-xs mt-1">{errors.salesEnd}</p>}
@@ -137,6 +172,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={validFrom}
               onChange={e => setValidFrom(e.target.value)}
+              min={getCurrentDate()}
               className={`block w-full px-3 py-2 border rounded-md text-black ${errors.validFrom ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.validFrom && <p className="text-red-500 text-xs mt-1">{errors.validFrom}</p>}
@@ -147,6 +183,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
               type="date"
               value={validTo}
               onChange={e => setValidTo(e.target.value)}
+              min={getCurrentDate()}
               className={`block w-full px-3 py-2 border rounded-md text-black ${errors.validTo ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.validTo && <p className="text-red-500 text-xs mt-1">{errors.validTo}</p>}
@@ -184,6 +221,17 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ onClose, onAddTic
           />
           {errors.ticketPrice && <p className="text-red-500 text-xs mt-1">{errors.ticketPrice}</p>}
         </div>
+        {usdPrice && (
+          <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Equivalent Price (USD)</label>
+            <input
+              type="text"
+              value={usdPrice}
+              readOnly
+              className="block w-full px-3 py-2 border rounded-md text-black border-gray-300"
+            />
+          </div>
+        )}
         <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 mb-4 flex flex-col items-center justify-center">
           {imagePreviewUrl ? (
             <img src={imagePreviewUrl} alt="Ticket Preview" className="mb-4 max-w-xs" />

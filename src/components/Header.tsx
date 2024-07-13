@@ -25,7 +25,7 @@ const Header: React.FC = () => {
     if (token) {
       fetchSubscription();
     }
-  }, []);
+  }, [fetchSubscription]);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -41,7 +41,7 @@ const Header: React.FC = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [fetchSubscription]);
 
   const handleDisconnect = () => {
     disconnectWallet();
@@ -64,7 +64,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white py-4 sticky top-0 z-50">
+    <header className="bg-white py-4 sticky top-0 z-50 header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div className="flex items-center">
           <Link legacyBehavior href="/" passHref>
@@ -76,16 +76,16 @@ const Header: React.FC = () => {
 
         <nav className="hidden md:flex flex-grow justify-center items-center space-x-4">
           <Link legacyBehavior href="/events" passHref>
-            <a className="text-gray-700 hover:text-blue-500 transition duration-300">Events</a>
+            <a className="text-gray-700 nav-link">Events</a>
           </Link>
           <Link legacyBehavior href="/view-event" passHref>
-            <a className="text-gray-700 hover:text-blue-500 transition duration-300">View Events</a>
+            <a className="text-gray-700 nav-link">View Events</a>
           </Link>
           <Link legacyBehavior href="/docs" passHref>
-            <a className="text-gray-700 hover:text-blue-500 transition duration-300">Docs</a>
+            <a className="text-gray-700 nav-link">Docs</a>
           </Link>
           <Link legacyBehavior href="/pricing" passHref>
-            <a className="text-gray-700 hover:text-blue-500 transition duration-300">Pricing</a>
+            <a className="text-gray-700 nav-link">Pricing</a>
           </Link>
         </nav>
 
@@ -140,14 +140,14 @@ const Header: React.FC = () => {
               )}
               <button
                 onClick={handleLogout}
-                className="btn_white bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md"
+                className="bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md"
               >
                 Logout
               </button>
             </div>
           ) : (
             <Link legacyBehavior href="/login">
-              <a className="btn_white bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md">
+              <a className="bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md">
                 Login
               </a>
             </Link>
@@ -178,7 +178,7 @@ const Header: React.FC = () => {
       </div>
 
       <div id="mobile-menu" className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'} bg-white shadow-lg`}>
-        <nav className="px-4 py-4 space-y-4">
+        <nav className="px-4 py-4 space-y-8">
           <Link legacyBehavior href="/events" passHref>
             <a className="block text-gray-700 hover:text-blue-500" onClick={closeMobileMenu}>Events</a>
           </Link>
@@ -195,20 +195,20 @@ const Header: React.FC = () => {
             <div className="block text-gray-700">Welcome, {username}</div>
           ) : (
             <button
-              onClick={() => {connectWallet(); closeMobileMenu();}}
-              className="w-full btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
-            >
-              Connect Wallet
-            </button>
+            onClick={() => {connectWallet(); closeMobileMenu();}}
+            className="w-full btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
+          >
+            Connect Wallet
+          </button>
           )}
           {isLoggedIn ? (
-            <div className="flex flex-col items-start space-y-2">
+            <div className="flex flex-col items-start space-y-2"> // Changed space-y-8 to space-y-4
               {subscription && (
                 <span className="text-gray-700">Subscribed: {subscription.tier}</span>
               )}
               <button
                 onClick={() => {handleLogout(); closeMobileMenu();}}
-                className="w-full btn_white bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md"
+                className="w-full bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md"
               >
                 Logout
               </button>
@@ -216,7 +216,7 @@ const Header: React.FC = () => {
           ) : (
             <Link legacyBehavior href="/login">
               <a className="w-full">
-                <button className="w-full btn_white bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md" onClick={closeMobileMenu}>
+                <button className="w-full bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-4 mt-4 rounded-md" onClick={closeMobileMenu}>
                   Login
                 </button>
               </a>

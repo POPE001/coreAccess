@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'Core Access',
-  description: 'Revolutionizing Event Ticketing with Web3',
+  description: 'Revolutionizing Event Ticketing',
 };
 
 export default function RootLayout({

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {jwtDecode} from 'jwt-decode';
 import axios from 'axios';
@@ -50,7 +50,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchSubscription = async (authToken: string) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/pri cing/subscription`, {
+      const response = await axios.get(`${API_BASE_URL}/pricing/subscription`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },

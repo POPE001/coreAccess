@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { signIn } from '../../../services/authService';
 import { getErrorMessage } from '../../utils/errorHandler';
 import { PulseLoader } from 'react-spinners';
+import { useAuth } from '../../context/authContext';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ const Login: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +46,8 @@ const Login: React.FC = () => {
       const response = await signIn(data);
       console.log('Sign in success:', response);
 
-      // Store the token in localStorage
-      localStorage.setItem('token', response.token);
+      // Use the login function from the Auth context to set the token
+      login(response.token);
 
       // Navigate to the home page after successful sign in
       router.push('/events');

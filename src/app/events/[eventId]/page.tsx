@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import TicketDetail from '../../../components/TicketDetail'; // Adjust the import path if necessary
@@ -16,7 +17,6 @@ export default function EventDetailsPage() {
       fetchEventDetails(eventId);
     }
   }, [eventId]);
-//const API_BASE_URL = 'https://coreaccess-backend.onrender.com/api';
 
   useEffect(() => {
     if (event && event.eventImage) {
@@ -54,7 +54,7 @@ export default function EventDetailsPage() {
     return <div className="text-center mt-4">Loading...</div>;
   }
 
-  const { eventImage, name, description, eventDate, address, tickets, attendeeInfo } = event;
+  const { _id, eventImage, name, description, eventDate, address, tickets, attendeeInfo } = event;
   const eventImageUrl = typeof eventImage === 'string' ? eventImage : '';
 
   return (
@@ -89,6 +89,7 @@ export default function EventDetailsPage() {
                 }} 
                 attendeeInfo={attendeeInfo}
                 event={{
+                  _id: _id ?? '', // Ensure event ID is always a string
                   eventDate,
                   name,
                   eventImage: eventImageUrl || '', // Ensure eventImage is always a string
