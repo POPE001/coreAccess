@@ -1,26 +1,28 @@
-"use client"
+"use client"; // Ensure this directive is at the top
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import EventCard from '../../components/ViewEventCard';
-import SearchBox from '../../components/SearchBox';
-// import TopOrganizers from '../../components/TopOrganizers';
-// import TopEvents from '../../components/TopEvents';
 import CallToAction from '../../components/CallToAction';
 import CreateEvent from '../../components/CreateEvent';
 import AttendeeInfo from '../../components/AttendeeInfo';
 import AvailableTicket from '../../components/AvailableTicket';
 import PaymentOptions from '../../components/PaymentOptions';
-import { getEvents } from '../../../services/eventService'; // Adjust the import path as needed
-import { EventData, EventDetails } from '../../../types/index'; // Adjust the import path as needed
+import { getEvents } from '../../../services/eventService';
+import { EventData } from '../../../types/index';
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/config';
 
-// const API_BASE_URL = 'http://localhost:8000/api'; // Ensure this is correctly set
-// const API_BASE_URL = 'https://coreaccess-backend.onrender.com/api';
+interface User {
+  id: string;
+  username: string;
+  email: string;
+}
 
 const EventsView = () => {
     const [currentStep, setCurrentStep] = useState(0); // 0 = initial view, 1 = create event, 2 = attendee info
     const [events, setEvents] = useState<EventData[]>([]); // State to store the events fetched from API
+    const [user, setUser] = useState<User | null>(null); // State to store the current user
     const router = useRouter();
 
     const initialState: EventData = {
@@ -34,22 +36,23 @@ const EventsView = () => {
             description: '',
             eventDate: '',
         },
-        tickets: [], // Ensure tickets is initialized as an empty array
+        tickets: [],
         attendeeInfo: {
             emailAddress: false,
             fullName: false,
             phoneNumber: false,
-            heardAboutEvent: false // Initialize with default values
+            heardAboutEvent: false
         },
         paymentOptions: {
             near: false,
             stripe: false,
             paymentMethods: []
-        }
+        },
+        createdBy: ''
     };
-    
+
     const [eventData, setEventData] = useState<EventData>(initialState);
-  
+
     const updateEventData = (newData: Partial<EventData>) => {
         setEventData(prev => ({
             ...prev,
@@ -83,7 +86,21 @@ const EventsView = () => {
             }
         };
 
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/auth/me`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                setUser(response.data);
+            } catch (error) {
+                console.error('Failed to fetch user:', error);
+            }
+        };
+
         fetchEvents();
+        fetchUser();
     }, []);
 
     const handleCreateEvent = () => {
@@ -105,17 +122,17 @@ const EventsView = () => {
     const handleFinalSubmit = async () => {
         console.log("Submitting event data:", eventData);
         const formData = new FormData();
-    
+
         // Append all simple text data
         formData.append('name', eventData.name);
         formData.append('description', eventData.description);
         formData.append('address', eventData.address);
         formData.append('eventDate', eventData.eventDate);
-    
+
         // Append complex objects as JSON strings
         formData.append('attendeeInfo', JSON.stringify(eventData.attendeeInfo));
         formData.append('paymentOptions', JSON.stringify(eventData.paymentOptions));
-        
+
         // Append tickets array
         eventData.tickets.forEach((ticket, index) => {
             formData.append(`tickets[${index}][name]`, ticket.name);
@@ -141,23 +158,23 @@ const EventsView = () => {
                 formData.append(`tickets[${index}][ticketImage]`, ticket.ticketImage);
             }
         });
-    
+
         // Append images if there are any
         if (eventData.eventImage) {
             formData.append('eventImage', eventData.eventImage);
         }
-    
+
         // Log the formData contents for debugging
         for (let [key, value] of formData.entries()) {
             console.log(key, value);
         }
-    
+
         // Validate form data before submitting
         if (!eventData.name || !eventData.description || !eventData.address || !eventData.eventDate) {
             alert("Please fill in all required fields.");
             return;
         }
-    
+
         // Make the API call
         try {
             const token = localStorage.getItem('token'); // Retrieve the token from localStorage
@@ -188,45 +205,48 @@ const EventsView = () => {
 
     return (
         <div className="container mx-auto px-4 mb-6">
-            {currentStep === 0 && <>
-                {/* <SearchBox onSearch={function (query: string): void {
-                    throw new Error('Function not implemented.');
-                } } /> */}
-                <div className="flex flex-wrap justify-between">
-                    <div className="flex-1 min-w-0 lg:flex"> 
-                        <div className="w-full lg:w-3/4 space-y-4 pr-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-12">
-                                {events.map((event) => (
-                                    <EventCard key={event._id} event={event} />
-                                ))}
+            {currentStep === 0 && (
+                <>
+                    <div className="flex flex-wrap justify-between">
+                        <div className="flex-1 min-w-0 lg:flex">
+                            <div className="w-full lg:w-3/4 space-y-4 pr-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-12">
+                                    {events.map((event) => (
+                                        <EventCard key={event._id} event={event} />
+                                    ))}
+                                </div>
+                                <CallToAction onButtonClick={handleCreateEvent} />
                             </div>
-                            <CallToAction onButtonClick={handleCreateEvent} />
-                        </div>
-                        <div className="w-full lg:w-1/4 lg:pl-4 space-y-4">
-                            {/* <TopOrganizers />
-                            <TopEvents /> */}
                         </div>
                     </div>
+                </>
+            )}
+
+            {currentStep === 1 && (
+                <div className="flex justify-center items-center min-h-screen">
+                    <CreateEvent eventData={eventData} updateEventData={updateEventData} onContinue={handleAttendeeInfo} />
                 </div>
-            </>}
+            )}
 
-            {currentStep === 1 && <div className="flex justify-center items-center min-h-screen">
-                <CreateEvent eventData={eventData} updateEventData={updateEventData} onContinue={handleAttendeeInfo} />
-            </div>}
+            {currentStep === 2 && (
+                <div className="flex justify-center items-center min-h-screen">
+                    <AttendeeInfo eventData={eventData} updateEventData={updateEventData} onContinue={handleAvailableTicket} />
+                </div>
+            )}
 
-            {currentStep === 2 && <div className="flex justify-center items-center min-h-screen">
-                <AttendeeInfo eventData={eventData} updateEventData={updateEventData} onContinue={handleAvailableTicket} />
-            </div>}
+            {currentStep === 3 && (
+                <div className="flex justify-center items-center min-h-screen">
+                    {eventData && eventData.tickets && (
+                        <AvailableTicket eventData={eventData} updateEventData={updateEventData} onContinue={handlePaymentOptions} />
+                    )}
+                </div>
+            )}
 
-            {currentStep === 3 && <div className="flex justify-center items-center min-h-screen">
-                {eventData && eventData.tickets && (
-                    <AvailableTicket eventData={eventData} updateEventData={updateEventData} onContinue={handlePaymentOptions} />
-                )}
-            </div>}
-
-            {currentStep === 4 && <div className="flex justify-center items-center min-h-screen">
-                <PaymentOptions eventData={eventData} updateEventData={updateEventData} onContinue={handleFinalSubmit} />
-            </div>}
+            {currentStep === 4 && (
+                <div className="flex justify-center items-center min-h-screen">
+                    <PaymentOptions eventData={eventData} updateEventData={updateEventData} onContinue={handleFinalSubmit} />
+                </div>
+            )}
         </div>
     );
 };

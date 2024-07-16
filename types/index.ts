@@ -150,6 +150,7 @@ export interface EventData {
   description: string;
   address: string;
   eventDate: string;
+  createdBy: string;
   eventImage?: File | string; // Adjusted to handle both File and string
   eventDetails: EventDetails;
   attendeeInfo: AttendeeInfo;

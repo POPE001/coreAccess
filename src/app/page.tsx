@@ -19,7 +19,7 @@ const Home: React.FC = () => {
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
         <meta name="description" content="Revolutionizing Event Ticketing with Web3" />
         {/* Correct path and rel attributes for favicon */}
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon-new.ico" />
       </Head>
 
       {showPassphrase ? (

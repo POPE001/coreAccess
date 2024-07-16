@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2'; // Import sweetalert2
 import EventCard from '../components/ViewEventCard';
 import SearchBox from '../components/SearchBox';
 import CallToAction from '../components/CallToAction';
@@ -41,7 +42,8 @@ const EventsView = () => {
       near: false,
       stripe: false,
       paymentMethods: []
-    }
+    },
+    createdBy: ''
   };
 
   const [eventData, setEventData] = useState<EventData>(initialState);
@@ -82,7 +84,16 @@ const EventsView = () => {
   }, []);
 
   const handleCreateEvent = () => {
-    setCurrentStep(1); // Move to create event step
+    const token = localStorage.getItem('token'); // Check if the user is logged in
+    if (!token) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'You must be logged in to create an event',
+        text: 'Please log in to continue.'
+      });
+    } else {
+      setCurrentStep(1); // Move to create event step
+    }
   };
 
   const handleAttendeeInfo = () => {

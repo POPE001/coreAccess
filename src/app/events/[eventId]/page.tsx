@@ -54,7 +54,7 @@ export default function EventDetailsPage() {
     return <div className="text-center mt-4">Loading...</div>;
   }
 
-  const { _id, eventImage, name, description, eventDate, address, tickets, attendeeInfo } = event;
+  const { _id, eventImage, name, description, eventDate, address, tickets, attendeeInfo, createdBy } = event; // Ensure createdBy is destructured
   const eventImageUrl = typeof eventImage === 'string' ? eventImage : '';
 
   return (
@@ -94,7 +94,8 @@ export default function EventDetailsPage() {
                   name,
                   eventImage: eventImageUrl || '', // Ensure eventImage is always a string
                   description,
-                  address
+                  address,
+                  createdBy: createdBy ?? '' // Ensure createdBy is always a string
                 }} // Pass event information as an object
               />
             ))
