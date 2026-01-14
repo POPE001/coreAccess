@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { API_BASE_URL } from '@/config';
+import { supabase } from '@/utils/supabaseClient';
 
 interface SignUpData {
   username: string;
@@ -14,26 +13,34 @@ interface SignInData {
 
 export const signUp = async (data: SignUpData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/signup`, data);
-    return response.data;
+    const { data: authData, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          username: data.username,
+        },
+      },
+    });
+
+    if (error) throw error;
+    return authData;
   } catch (error: any) {
-    if (error.response) {
-      throw new Error(error.response.data.message || 'Sign up failed');
-    } else {
-      throw new Error('Network Error');
-    }
+    throw new Error(error.message || 'Sign up failed');
   }
 };
 
 export const signIn = async (data: SignInData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/signin`, data);
-    return response.data;
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (error) throw error;
+    return authData;
   } catch (error: any) {
-    if (error.response) {
-      throw new Error(error.response.data.message || 'Sign in failed');
-    } else {
-      throw new Error('Network Error');
-    }
+    throw new Error(error.message || 'Sign in failed');
   }
 };
+

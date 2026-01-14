@@ -14,45 +14,21 @@ const Header: React.FC = () => {
   const pathname = usePathname() || '/';
 
   const [isClient, setIsClient] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { subscription, fetchSubscription } = useAuth();
+  const { user, subscription, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
-    if (token) {
-      fetchSubscription();
-    }
-  }, [fetchSubscription]);
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token);
-      if (token) {
-        fetchSubscription();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [fetchSubscription]);
+  }, []);
 
   const handleDisconnect = () => {
     disconnectWallet();
     router.push('/');
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    await logout();
     router.push('/');
-    setTimeout(() => router.replace(pathname), 0); // Force re-render by navigating to the current route
   };
 
   const toggleMobileMenu = () => {
@@ -133,7 +109,7 @@ const Header: React.FC = () => {
               Connect Wallet
             </button>
           )}
-          {isLoggedIn ? (
+          {user ? (
             <div className="flex items-center space-x-4">
               {subscription && (
                 <span className="text-black">Subscribed: {subscription.tier}</span>
@@ -195,19 +171,19 @@ const Header: React.FC = () => {
             <div className="block text-gray-700">Welcome, {username}</div>
           ) : (
             <button
-            onClick={() => {connectWallet(); closeMobileMenu();}}
-            className="w-full btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
-          >
-            Connect Wallet
-          </button>
+              onClick={() => { connectWallet(); closeMobileMenu(); }}
+              className="w-full btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
+            >
+              Connect Wallet
+            </button>
           )}
-          {isLoggedIn ? (
-            <div className="flex flex-col items-start space-y-2"> // Changed space-y-8 to space-y-4
+          {user ? (
+            <div className="flex flex-col items-start space-y-2">
               {subscription && (
                 <span className="text-gray-700">Subscribed: {subscription.tier}</span>
               )}
               <button
-                onClick={() => {handleLogout(); closeMobileMenu();}}
+                onClick={() => { handleLogout(); closeMobileMenu(); }}
                 className="w-full bg-white text-core-pink border border-core-pink hover:bg-core-pink hover:text-white px-4 py-2 rounded-md"
               >
                 Logout

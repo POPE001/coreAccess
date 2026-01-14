@@ -1,16 +1,17 @@
-'use client';
-
+"use client"
 import React from 'react';
 import Swal from 'sweetalert2';
+import { useAuth } from '../context/authContext';
+
 
 interface CallToActionProps {
   onButtonClick: () => void;
 }
 
 const CallToAction: React.FC<CallToActionProps> = ({ onButtonClick }) => {
+  const { user } = useAuth();
   const handleButtonClick = () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!user) {
       Swal.fire({
         icon: 'warning',
         title: 'You must be logged in to create an event',
@@ -23,7 +24,7 @@ const CallToAction: React.FC<CallToActionProps> = ({ onButtonClick }) => {
 
   return (
     <div className="relative text-center text-white mx-auto max-w-full overflow-hidden rounded-lg mb-128"
-         style={{ backgroundImage: 'url(/assets/create-event.svg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      style={{ backgroundImage: 'url(/assets/create-event.svg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="pb-20 mt-10 mb-68">
         <h2 className="text-2xl font-bold mb-4">Interested in hosting your own Event?</h2>
         <p className="mb-4">Create your tickets here.</p>

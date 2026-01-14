@@ -36,7 +36,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({ eventData, updateEventD
   const handleContinue = async () => {
     setLoading(true);
 
-    // Validate form data before submitting
+    // Validate form data
     if (!eventData.name || !eventData.description || !eventData.address || !eventData.eventDate) {
       Swal.fire('Error', 'Please fill in all required fields.', 'error');
       setLoading(false);
@@ -44,80 +44,15 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({ eventData, updateEventD
     }
 
     try {
-      const formData = new FormData();
-      formData.append('name', eventData.name);
-      formData.append('description', eventData.description);
-      formData.append('address', eventData.address);
-      formData.append('eventDate', eventData.eventDate);
-      formData.append('attendeeInfo', JSON.stringify(eventData.attendeeInfo));
-      formData.append('paymentOptions', JSON.stringify(eventData.paymentOptions));
-
-      eventData.tickets.forEach((ticket, index) => {
-        formData.append(`tickets[${index}][name]`, ticket.name);
-        formData.append(`tickets[${index}][description]`, ticket.description);
-        formData.append(`tickets[${index}][price]`, ticket.price.toString());
-        formData.append(`tickets[${index}][quantity]`, ticket.quantity.toString());
-        if (ticket.maxPerPerson !== undefined) {
-          formData.append(`tickets[${index}][maxPerPerson]`, ticket.maxPerPerson.toString());
-        }
-        if (ticket.salesStart) {
-          formData.append(`tickets[${index}][salesStart]`, ticket.salesStart.toISOString());
-        }
-        if (ticket.salesEnd) {
-          formData.append(`tickets[${index}][salesEnd]`, ticket.salesEnd.toISOString());
-        }
-        if (ticket.validFrom) {
-          formData.append(`tickets[${index}][validFrom]`, ticket.validFrom.toISOString());
-        }
-        if (ticket.validTo) {
-          formData.append(`tickets[${index}][validTo]`, ticket.validTo.toISOString());
-        }
-        if (ticket.ticketImage) {
-          formData.append(`tickets[${index}][ticketImage]`, ticket.ticketImage);
-        }
-      });
-
-      if (eventData.eventImage) {
-        formData.append('eventImage', eventData.eventImage);
-      }
-
-      const token = localStorage.getItem('token'); // Retrieve the token from localStorage
-      if (!token) {
-        throw new Error('No token, authorization denied');
-      }
-
-      const response = await axios.post(`${API_BASE_URL}/events`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` // Include the token in the Authorization header
-        }
-      });
-
-      Swal.fire({
-        title: 'Success',
-        text: 'Event created successfully!',
-        icon: 'success',
-        showCancelButton: true,
-        confirmButtonText: 'View Events',
-        cancelButtonText: 'Stay Here'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          router.push('/view-event');
-        }
-      });
-
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Swal.fire('Error', error.response?.data?.message || 'Unknown error', 'error');
-      } else if (error instanceof Error) {
-        Swal.fire('Error', error.message, 'error');
-      } else {
-        Swal.fire('Error', 'An unknown error occurred', 'error');
-      }
+      // Data is already updated via useEffect and updateEventData
+      onContinue();
+    } catch (error: any) {
+      Swal.fire('Error', error.message || 'An error occurred', 'error');
     } finally {
       setLoading(false);
     }
   };
+
 
   const ToggleSwitch: React.FC<{ label: string; checked: boolean; onChange: () => void }> = ({ label, checked, onChange }) => (
     <div className="flex justify-between items-center my-4">

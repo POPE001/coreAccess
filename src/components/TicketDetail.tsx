@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { BASE_URL, API_BASE_URL } from '@/config';
-import axios from 'axios';
+import { BASE_URL } from '@/config';
+import { supabase } from '@/utils/supabaseClient';
+import { useAuth } from '../context/authContext';
+
 
 interface User {
   _id: string;
@@ -50,7 +52,7 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
   const [ticketCount, setTicketCount] = useState(0);
   const [imageSrc, setImageSrc] = useState<string | undefined>(undefined);
   const [totalCount, setTotalCount] = useState(0);
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAuth();
   const [attendees, setAttendees] = useState<Attendee[]>([]);
   const router = useRouter();
 
@@ -72,35 +74,19 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
     setTotalCount(ticketCount); // Update the total count whenever ticketCount changes
   }, [ticketCount]);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        console.log('Fetched User:', response.data); // Debug log
-        setUser(response.data);
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  // Removed manual fetchUser effect as useAuth provides user object
 
   useEffect(() => {
-    if (user && user._id === event.createdBy) {
+    if (user && user.id === event.createdBy) {
       const fetchAttendees = async () => {
         try {
-          const response = await axios.get(`${API_BASE_URL}/events/${event._id}/attendees`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          console.log('Fetched Attendees:', response.data); // Debug log
-          setAttendees(response.data);
+          const { data, error } = await supabase
+            .from('attendees') // Note: Verify if this table exists in your schema
+            .select('*')
+            .eq('event_id', event._id);
+
+          if (error) throw error;
+          setAttendees(data as Attendee[]);
         } catch (error) {
           console.error('Failed to fetch attendees:', error);
         }
@@ -114,9 +100,9 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
     return <div>Loading...</div>; // Or show a loading spinner
   }
 
-  console.log('Event Object:', event); // Debug log the entire event object
-  console.log('Event createdBy:', event.createdBy); // Debug log
-  console.log('Logged in user id:', user._id); // Debug log
+  console.log('Event Object:', event);
+  console.log('Event createdBy:', event.createdBy);
+  console.log('Logged in user id:', user?.id);
 
   const increment = () => {
     if (ticketCount < (ticket.maxPerPerson || ticket.quantity)) {
@@ -140,10 +126,13 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
       eventAddress: event.address,
       eventImage: event.eventImage,
       eventId: event._id,
-      fullName: String(attendeeInfo.fullName),
-      phoneNumber: String(attendeeInfo.phoneNumber),
-      emailAddress: String(attendeeInfo.emailAddress),
-      heardAboutEvent: String(attendeeInfo.heardAboutEvent),
+      fullName: attendeeInfo?.fullName ? 'true' : 'false',
+      phoneNumber: attendeeInfo?.phoneNumber ? 'true' : 'false',
+      emailAddress: attendeeInfo?.emailAddress ? 'true' : 'false',
+      heardAboutEvent: attendeeInfo?.heardAboutEvent ? 'true' : 'false',
+
+
+
       ticketCount: String(ticketCount),
     }).toString();
 
@@ -163,7 +152,7 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ ticket, attendeeInfo, event
       <p className="text-gray-600 mb-4">{ticket.description}</p>
       <p className="text-red-800 mb-4">${ticket.price}</p>
 
-      {user && event.createdBy && user._id === event.createdBy ? (
+      {user && event.createdBy && user.id === event.createdBy ? (
         <div>
           <h3 className="text-lg font-bold mb-2">Attendee Details</h3>
           {attendees.length > 0 ? (

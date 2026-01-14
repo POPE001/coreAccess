@@ -7,7 +7,7 @@ import { BASE_URL } from '@/config';
 
 const EventCard: React.FC<{ event: EventData }> = ({ event }) => {
   const { name, description, eventDate, tickets, eventImage } = event;
-  const availableTickets = tickets.reduce((total, ticket) => total + ticket.quantity, 0);
+  const availableTickets = (tickets || []).reduce((total, ticket) => total + ticket.quantity, 0);
   const [imageURL, setImageURL] = useState<string | undefined>(undefined);
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
@@ -19,8 +19,9 @@ const EventCard: React.FC<{ event: EventData }> = ({ event }) => {
         setImageURL(url);
         return () => URL.revokeObjectURL(url);
       } else if (typeof eventImage === 'string') {
-        setImageURL(`${BASE_URL}/${eventImage}`);
+        setImageURL(eventImage.startsWith('http') ? eventImage : `${BASE_URL}/${eventImage}`);
       }
+
     }
   }, [eventImage]);
 
@@ -39,8 +40,8 @@ const EventCard: React.FC<{ event: EventData }> = ({ event }) => {
           {description}
         </div>
         {description.length > 100 && (
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)} 
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
             className="text-pink-500 mt-2 transition-colors duration-300 hover:text-pink-700"
           >
             {isExpanded ? 'Show Less' : 'Read More'}

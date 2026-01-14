@@ -44,6 +44,10 @@ const TicketFormContent: React.FC = () => {
     heardAboutEvent: searchParams?.get('heardAboutEvent') === 'true',
   };
 
+  // Log for debugging (visible in browser console)
+  console.log('Ticket Form Attendee Info Flags:', attendeeInfo);
+
+
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
@@ -162,24 +166,24 @@ const TicketFormContent: React.FC = () => {
 
   const saveAttendeeDetails = async () => {
     const requestData = {
-        ticketId,
-        eventId,
-        fullName: formData.fullName,
-        phoneNumber: formData.phoneNumber,
-        emailAddress: formData.emailAddress,
-        heardAboutEvent: formData.heardAboutEvent,
-        ticketCount,
+      ticketId,
+      eventId,
+      fullName: formData.fullName,
+      phoneNumber: formData.phoneNumber,
+      emailAddress: formData.emailAddress,
+      heardAboutEvent: formData.heardAboutEvent,
+      ticketCount,
     };
 
     console.log('Sending attendee details:', requestData);
 
     try {
-        await axios.post(`${API_BASE_URL}/attendees/save`, requestData);
-        console.log('Attendee details saved successfully!');
+      await axios.post(`${API_BASE_URL}/attendees/save`, requestData);
+      console.log('Attendee details saved successfully!');
     } catch (error) {
-        console.error('Failed to save attendee details', error);
+      console.error('Failed to save attendee details', error);
     }
-};
+  };
 
 
   const updateTicketCount = async () => {
@@ -227,7 +231,7 @@ const TicketFormContent: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 pb-16">
-            {loading && (
+      {loading && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
           <PulseLoader color="#fff" />
           <div className="text-white text-lg ml-4">Processing your payment...</div>
@@ -292,7 +296,7 @@ const TicketFormContent: React.FC = () => {
           <div>
             <label className="block text-gray-700">Email</label>
             <input
-              type="emailAddress"
+              type="email"
               name="emailAddress"
               value={formData.emailAddress}
               onChange={handleChange}
@@ -301,6 +305,12 @@ const TicketFormContent: React.FC = () => {
             {errors.emailAddress && <p className="text-red-500 text-xs mt-1">{errors.emailAddress}</p>}
           </div>
         )}
+
+        {!attendeeInfo.fullName && !attendeeInfo.phoneNumber && !attendeeInfo.emailAddress && !attendeeInfo.heardAboutEvent && (
+          <p className="text-gray-500 text-sm">No specific information required by the organiser.</p>
+        )}
+
+
         {attendeeInfo.heardAboutEvent && (
           <div>
             <label className="block text-gray-700">How did you hear about this event?</label>
@@ -342,13 +352,13 @@ const TicketFormContent: React.FC = () => {
                     )}
                   </button>
 
-                
+
                   <button onClick={handlePayment} className="mt-8 w-full bg-pink-500 text-white rounded-full py-2 font-bold">Continue</button>
                   {loading && (
-  <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-    {/* <div className="text-white text-lg">Processing your payment...</div> */}
-  </div>
-)}
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+                      {/* <div className="text-white text-lg">Processing your payment...</div> */}
+                    </div>
+                  )}
 
                 </div>
               </div>

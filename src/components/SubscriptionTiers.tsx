@@ -123,15 +123,6 @@ const SubscriptionTiers: React.FC = () => {
       return;
     }
 
-    const token = localStorage.getItem('token');
-    console.log('Token:', token); // Log the token for debugging
-    console.log('User ID:', user.id); // Log the user ID
-    if (!token) {
-      console.error('No token found');
-      setLoading(false);
-      return;
-    }
-
     const data = {
       userId: user.id,
       tier: selectedTier,
@@ -141,7 +132,8 @@ const SubscriptionTiers: React.FC = () => {
     console.log('Subscription Data:', data); // Log the subscription data
 
     try {
-      await subscribe(data, token);
+      await subscribe(data);
+
       console.log(`Subscribed to ${selectedTier} as ${selectedRole}`);
       router.push('/');
     } catch (error: any) {

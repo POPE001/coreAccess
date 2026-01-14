@@ -46,10 +46,8 @@ const Login: React.FC = () => {
       const response = await signIn(data);
       console.log('Sign in success:', response);
 
-      // Use the login function from the Auth context to set the token
-      login(response.token);
-
       // Navigate to the home page after successful sign in
+      // Supabase sets the session automatically in the background
       router.push('/events');
     } catch (error) {
       const message = getErrorMessage(error);

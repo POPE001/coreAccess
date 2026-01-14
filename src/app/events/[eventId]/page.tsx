@@ -1,10 +1,13 @@
 'use client';
+import React, { useEffect, useState } from 'react';
 
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-import TicketDetail from '../../../components/TicketDetail'; // Adjust the import path if necessary
-import { EventData, Ticket } from '../../../../types';
-import { API_BASE_URL, BASE_URL } from '@/config';
+import TicketDetail from '../../../components/TicketDetail';
+import { getEventById } from '../../../../services/eventService';
+import { EventData, Ticket, ErrorResponse } from '../../../../types';
+import { BASE_URL } from '@/config';
+
+
 
 export default function EventDetailsPage() {
   const { eventId } = useParams() as { eventId: string };
@@ -26,20 +29,20 @@ export default function EventDetailsPage() {
         setImageURL(url);
         return () => URL.revokeObjectURL(url);
       } else if (typeof eventImage === 'string') {
-        setImageURL(`${BASE_URL}/${eventImage}`);
+        setImageURL(eventImage.startsWith('http') ? eventImage : `${BASE_URL}/${eventImage}`);
       }
     }
   }, [event]);
 
   const fetchEventDetails = async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/events/${id}`);
-      const result = await response.json();
-      if (response.ok && result._id) {
-        setEvent(result);
+      const result = await getEventById(id);
+      if ('_id' in result) {
+        setEvent(result as EventData);
       } else {
-        setError('Event not found');
+        setError((result as ErrorResponse).message || 'Event not found');
       }
+
     } catch (error) {
       console.error('Fetching error:', error);
       setError('An error occurred while fetching event details');
@@ -76,7 +79,7 @@ export default function EventDetailsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {tickets.length > 0 ? (
             tickets.map((ticket: Ticket) => (
-              <TicketDetail 
+              <TicketDetail
                 key={ticket._id}
                 ticket={{
                   _id: ticket._id,
@@ -86,7 +89,7 @@ export default function EventDetailsPage() {
                   price: ticket.price,
                   ticketImage: ticket.ticketImage || null,
                   maxPerPerson: ticket.maxPerPerson
-                }} 
+                }}
                 attendeeInfo={attendeeInfo}
                 event={{
                   _id: _id ?? '', // Ensure event ID is always a string

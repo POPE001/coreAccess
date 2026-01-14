@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { API_BASE_URL } from '@/config';
+import { supabase } from '@/utils/supabaseClient';
 
 enum SubscriptionTier {
   Basic = 'Basic',
@@ -14,27 +13,20 @@ interface SubscribeData {
   paymentMethodId: string;
 }
 
-export const subscribe = async (data: SubscribeData, token: string) => {
+export const subscribe = async (data: SubscribeData) => {
   try {
-    console.log("Sending subscription data:", data); // Log the data being sent
-    const response = await axios.post(`${API_BASE_URL}/pricing/subscribe`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+    console.log("Sending subscription data to Supabase:", data);
+    const { data: responseData, error } = await supabase.functions.invoke('subscribe', {
+      body: data
     });
-    console.log("Subscription response data:", response.data); // Log the successful response data
-    return response.data;
+
+    if (error) throw error;
+
+    console.log("Subscription response data:", responseData);
+    return responseData;
   } catch (error: any) {
-    if (error.response) {
-      console.error("Subscription error response:", error.response.data); // Log the error response
-      throw new Error(error.response.data.message || 'Subscription failed');
-    } else if (error.request) {
-      console.error("No response received:", error.request); // Log if no response was received
-      throw new Error('No response from server. Please check your network connection.');
-    } else {
-      console.error("Subscription request error:", error.message); // Log any other errors
-      throw new Error('An error occurred while processing the subscription.');
-    }
+    console.error("Subscription error:", error.message);
+    throw new Error(error.message || 'Subscription failed');
   }
 };
+

@@ -28,6 +28,7 @@
     "@near-wallet-selector/wallet-connect": "^8.9.10",
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.1.0",
+    "@supabase/supabase-js": "^2.90.1",
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",

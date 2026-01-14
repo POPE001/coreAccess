@@ -1,8 +1,6 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import {jwtDecode} from 'jwt-decode';
-import axios from 'axios';
-import { API_BASE_URL } from '@/config';
+import { supabase } from '@/utils/supabaseClient';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -11,7 +9,7 @@ interface AuthProviderProps {
 interface AuthContextType {
   user: { email: string | null | undefined; id: string } | null;
   subscription: { tier: string; duration: string } | null;
-  login: (token: string) => void;
+  login: (token: string) => void; // Kept for compatibility, but Supabase handles it
   logout: () => void;
   fetchSubscription: () => Promise<void>;
 }
@@ -21,48 +19,66 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<{ email: string | null | undefined; id: string } | null>(null);
   const [subscription, setSubscription] = useState<{ tier: string; duration: string } | null>(null);
-  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      const decodedUser = getUserFromToken(storedToken);
-      setUser(decodedUser);
-      setToken(storedToken);
-      fetchSubscription(storedToken);
-    }
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({ email: session.user.email, id: session.user.id });
+        fetchSubscription(session.user.id);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setUser({ email: session.user.email, id: session.user.id });
+          fetchSubscription(session.user.id);
+        } else {
+          setUser(null);
+          setSubscription(null);
+        }
+      }
+    );
+
+    return () => {
+      authListener.unsubscribe();
+    };
   }, []);
 
   const login = (newToken: string) => {
-    localStorage.setItem('token', newToken);
-    const decodedUser = getUserFromToken(newToken);
-    setUser(decodedUser);
-    setToken(newToken);
-    fetchSubscription(newToken);
+    // With Supabase, login is usually handled by the authService
+    // and caught by onAuthStateChange. This is kept for compatibility if needed.
+    console.log("Login called with token. Supabase handles session automatically.");
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     setSubscription(null);
-    setToken(null);
   };
 
-  const fetchSubscription = async (authToken: string) => {
+  const fetchSubscription = async (userId: string) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/pricing/subscription`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      setSubscription(response.data.subscription);
+      // Fetch subscription from your 'subscriptions' table in Supabase
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setSubscription({ tier: data.tier, duration: data.duration });
+      }
     } catch (error) {
       console.error('Failed to fetch subscription:', error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, subscription, login, logout, fetchSubscription: () => fetchSubscription(token!) }}>
+    <AuthContext.Provider value={{ user, subscription, login, logout, fetchSubscription: () => fetchSubscription(user?.id!) }}>
       {children}
     </AuthContext.Provider>
   );
@@ -76,14 +92,5 @@ const useAuth = (): AuthContextType => {
   return context;
 };
 
-const getUserFromToken = (token: string): { email: string | null | undefined; id: string } | null => {
-  try {
-    const decodedToken = jwtDecode<{ email: string; id: string }>(token);
-    return { email: decodedToken.email, id: decodedToken.id };
-  } catch (error) {
-    console.error('Invalid token', error);
-    return null;
-  }
-};
-
 export { AuthProvider, useAuth };
+
