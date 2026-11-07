@@ -1,82 +1,94 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from 'react';
+import { PulseLoader } from 'react-spinners';
 
 interface AttendeeInfoProps {
+  eventData: EventData;
+  updateEventData: (newData: Partial<EventData>) => void;
   onContinue: () => void;
 }
 
-const AttendeeInfo: React.FC<AttendeeInfoProps> = ({ onContinue }) => {
-  const [emailAddress, setEmailAddress] = useState(true);
-  const [fullName, setFullName] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState(false);
-  const [heardAboutEvent, setHeardAboutEvent] = useState(false);
+interface AttendeeInfoState {
+  emailAddress: boolean;
+  fullName: boolean;
+  phoneNumber: boolean;
+  heardAboutEvent: boolean;
+}
+
+interface EventData {
+  attendeeInfo: AttendeeInfoState;
+  // other properties for different steps can be included here
+}
+
+const AttendeeInfo: React.FC<AttendeeInfoProps> = ({ eventData, updateEventData, onContinue }) => {
+  const [attendeeInfo, setAttendeeInfo] = useState<AttendeeInfoState>({
+    emailAddress: eventData?.attendeeInfo?.emailAddress || false,
+    fullName: eventData?.attendeeInfo?.fullName || false,
+    phoneNumber: eventData?.attendeeInfo?.phoneNumber || false,
+    heardAboutEvent: eventData?.attendeeInfo?.heardAboutEvent || false,
+  });
+
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    document.body.style.backgroundColor = '#FFFFFF'; // Set background color to white
-    document.body.style.backgroundImage = 'none'; // Reset background image if any
+    document.body.style.backgroundColor = '#FFFFFF';
+    document.body.style.backgroundImage = 'none';
   }, []);
 
-  return (
-    <div className="bg-white p-6 md:p-8 lg:p-10 rounded-lg shadow-lg max-w-full md:max-w-3xl lg:max-w-4xl mx-auto my-12 border-2 border-black">
-      <h1 className="text-xl font-semibold mb-6 text-center text-black">Create an Event</h1>
-      <h2 className="text-lg font-semibold mb-4 text-center text-black">Attendee Info</h2>
-      <div className="flex justify-center mb-8">
-        <ol className="flex space-x-2 md:space-x-4 text-gray-500">
-          <li className="flex items-center">
-            <span className="bg-gray-300 text-gray-700 rounded-full h-6 w-6 flex items-center justify-center font-bold">1</span>
-            <span className="ml-2 hidden sm:inline">Event Info</span>
-          </li>
-          <li className="flex items-center">
-            <span className="bg-blue-800 text-white rounded-full h-6 w-6 flex items-center justify-center font-bold">2</span>
-            <span className="ml-2 hidden sm:inline">Attendee Info</span>
-          </li>
-          <li className="flex items-center">
-            <span className="bg-gray-300 text-gray-700 rounded-full h-6 w-6 flex items-center justify-center font-bold">3</span>
-            <span className="ml-2 hidden sm:inline">Tickets</span>
-          </li>
-          <li className="flex items-center">
-            <span className="bg-gray-300 text-gray-700 rounded-full h-6 w-6 flex items-center justify-center font-bold">4</span>
-            <span className="ml-2 hidden sm:inline">Payment</span>
-          </li>
-        </ol>
-      </div>
-      <p className="text-md mb-4 text-center text-black">Choose the information you want to collect from attendees:</p>
-      <form>
-        <div className="space-y-6 text-black">
-          {renderToggleSwitch('Email address', emailAddress, setEmailAddress)}
-          {renderToggleSwitch('Full Name', fullName, setFullName)}
-          {renderToggleSwitch('Phone Number', phoneNumber, setPhoneNumber)}
-          {renderToggleSwitch('How did you hear about our event?', heardAboutEvent, setHeardAboutEvent)}
-        </div>
-        <div className="flex justify-center mt-6">
-          <button onClick={onContinue} className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-8 md:px-10 rounded-full transition ease-in duration-300">
-            Continue
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
+  const handleToggle = (key: keyof AttendeeInfoState) => {
+    setAttendeeInfo(prev => {
+      const newValue = { ...prev, [key]: !prev[key] };
+      updateEventData({ attendeeInfo: newValue });
+      return newValue;
+    });
+  };
 
-function renderToggleSwitch(label: string | number | bigint | boolean, value: boolean, setValue: React.Dispatch<React.SetStateAction<boolean>>) {
-    // Check if label is a string and convert it to a valid ID
-    const id = typeof label === 'string' ? label.toLowerCase().replace(/ /g, '-') : '';
-  
+  const renderToggleSwitch = (label: string, key: keyof AttendeeInfoState) => {
+    const id = label.toLowerCase().replace(/ /g, '-');
     return (
-      <div className="flex justify-between items-center">
-        <label htmlFor={id} className="text-md flex-1 mr-2">{label}</label>
-        <div className="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+      <div className="flex justify-between items-center my-4" onClick={() => handleToggle(key)}>
+        <label htmlFor={id} className="text-md flex-1 mr-4">{label}</label>
+        <div className="relative inline-block w-14 h-8 rounded-full" style={{ backgroundColor: attendeeInfo[key] ? '#ED1F8E' : 'gray' }}>
           <input
             type="checkbox"
-            name="toggle"
             id={id}
-            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-            checked={value}
-            onChange={() => setValue(!value)}
+            className="opacity-0 w-0 h-0"
+            checked={attendeeInfo[key]}
+            readOnly
           />
-          <label htmlFor={id} className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+          <span className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 ${attendeeInfo[key] ? 'transform translate-x-7' : ''}`} style={{ transition: 'transform 0.3s' }}></span>
         </div>
       </div>
     );
-}
+  };
+
+  const handleContinue = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onContinue();
+    }, 2000); // simulate a 2-second delay for the loading spinner
+  };
+
+  return (
+    <div className="bg-white p-6 md:p-8 lg:p-10 rounded-lg shadow-lg max-w-full md:max-w-3xl lg:max-w-4xl mx-auto my-12 border-2 border-black">
+      <h1 className="text-xl font-semibold mb-6 text-center text-black">Create an Event - Attendee Info</h1>
+      <div className="space-y-4 text-black">
+        {renderToggleSwitch('Email Address', 'emailAddress')}
+        {renderToggleSwitch('Full Name', 'fullName')}
+        {renderToggleSwitch('Phone Number', 'phoneNumber')}
+        {renderToggleSwitch('How Did You Hear About Our Event?', 'heardAboutEvent')}
+      </div>
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handleContinue}
+          className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-8 md:px-10 rounded-full transition ease-in duration-300 flex items-center"
+        >
+          {loading ? <PulseLoader size={10} color={"#fff"} /> : 'Continue'}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default AttendeeInfo;

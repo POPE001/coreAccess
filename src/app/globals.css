@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -18,14 +19,13 @@
 
 body {
   color: rgb(var(--foreground-rgb));
+  background-color: white;
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  ) rgb(var(--background-start-rgb));
 }
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -46,4 +46,183 @@ body {
 
 .btn_white:hover {
   @apply bg-pink-700;
+}
+
+.custom-modal-size {
+  max-width: 200px; /* Custom width as previously discussed */
+  min-height: 900px; /* New custom height */
+}
+
+.btn_black {
+  @apply text-black font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out border-2 border-core-pink;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #ED1F8E;
+}
+
+.toggle-label {
+  display: block;
+  width: 20px; /* Adjust size as needed */
+  height: 20px; /* Adjust size as needed */
+  border-radius: 50%;
+  background-color: gray; /* Default color */
+  transition: background-color 0.3s;
+}
+
+.toggle-checkbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.dot {
+  transition: transform 0.3s ease-in-out;
+}
+
+.event-image {
+  max-width: 430px;
+  max-height: 139px;
+  border-radius: 30px;
+  width: 100%; /* Ensure responsiveness */
+  height: auto; /* Ensure responsiveness */
+  object-fit: cover; /* Maintain aspect ratio and cover the area */
+}
+
+/* Add this to your global CSS file or in a style tag within the component */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  animation: fadeIn 1s ease-out;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  transition: color 0.3s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: #3b82f6; /* blue-500 color */
+  transition: left 0.3s ease, width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  left: 0;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.ticket-detail {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.ticket-image {
+  transition: transform 0.3s ease;
+}
+
+.ticket-image:hover {
+  transform: scale(1.05);
+}
+
+.button {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: #e60073;
+  transform: translateY(-2px);
+}
+
+.increment-decrement-button {
+  transition: background-color 0.3s ease;
+}
+
+.increment-decrement-button:hover {
+  background-color: #d1d5db; /* gray-300 */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.modal {
+  animation: slideUp 0.5s ease-out;
+}
+
+.button {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: #e60073;
+  transform: translateY(-2px);
+  color: #d1d5db;
+}
+
+.input-field {
+  transition: border-color 0.3s ease;
+}
+
+.input-field:focus {
+  border-color: #e60073;
+  outline: none;
 }
